@@ -1,0 +1,94 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo-blanco.png';
+import sitio from '../data/sitio.json';
+import { linkWhatsApp } from '../lib/propiedades';
+---
+
+<footer class="pie">
+  <div class="contenedor pie__fila">
+    <div class="pie__marca">
+      <Image src={logo} alt="hito desarrollos inmobiliarios" width={200} densities={[1, 2]} />
+      <p>Gestión de terrenos y construcción a medida.</p>
+      <p>{sitio.direccion} · {sitio.ciudad}</p>
+    </div>
+    <div class="pie__columnas">
+      <div>
+        <span class="pie__titulo">Explorar</span>
+        <a href="/propiedades/">Propiedades</a>
+        <a href="/#localidades">Localidades</a>
+        <a href="/#construccion">Construcción a medida</a>
+      </div>
+      <div>
+        <span class="pie__titulo">Contacto</span>
+        <a href={linkWhatsApp()} target="_blank" rel="noopener">WhatsApp {sitio.whatsapp_visible}</a>
+        {
+          sitio.instagram && (
+            <a href={`https://www.instagram.com/${sitio.instagram}/`} target="_blank" rel="noopener">
+              Instagram @{sitio.instagram}
+            </a>
+          )
+        }
+        {sitio.email && <a href={`mailto:${sitio.email}`}>{sitio.email}</a>}
+        {sitio.horario && <span>{sitio.horario}</span>}
+      </div>
+    </div>
+  </div>
+  <div class="contenedor pie__legal">
+    <span>© {new Date().getFullYear()} {sitio.nombre}</span>
+  </div>
+</footer>
+
+<style>
+  .pie {
+    background: var(--carbon);
+    color: #cfc4b6;
+    padding-top: 56px;
+    font-size: 0.95rem;
+  }
+  .pie__fila {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .pie__marca {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1 1 280px;
+  }
+  .pie__marca img {
+    width: 200px;
+    height: auto;
+    margin-bottom: 6px;
+  }
+  .pie__columnas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 56px;
+  }
+  .pie__columnas div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pie__titulo {
+    font-weight: 700;
+    color: var(--blanco);
+  }
+  .pie a {
+    color: #cfc4b6;
+    text-decoration: none;
+  }
+  .pie a:hover {
+    color: var(--blanco);
+    text-decoration: underline;
+  }
+  .pie__legal {
+    margin-top: 40px;
+    padding-block: 20px 28px;
+    border-top: 1px solid #4a3e33;
+    font-size: 0.85rem;
+  }
+</style>

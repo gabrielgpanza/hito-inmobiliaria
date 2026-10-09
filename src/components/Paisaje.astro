@@ -1,0 +1,38 @@
+---
+// Ilustración de sierras con el "hito" (la piedra del logo).
+// Se usa cuando una propiedad todavía no tiene fotos.
+interface Props {
+  variante?: number;
+  conPiedra?: boolean;
+  class?: string;
+}
+const { variante = 0, conPiedra = false, class: clase } = Astro.props;
+
+const paletas = [
+  ['#E6DDD0', '#B9A792', '#8C7863'],
+  ['#EDE6DC', '#C6B6A2', '#9C8872'],
+  ['#E2D8CA', '#AE9B85', '#7E6B58'],
+  ['#D9CDBD', '#A38F78', '#75634F'],
+];
+const [cielo, sierra, suelo] = paletas[variante % paletas.length];
+const sol = [300, 90, 200, 330][variante % 4];
+---
+
+<svg class={clase} viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <rect width="400" height="300" fill={cielo}></rect>
+  <circle cx={sol} cy="80" r="34" fill="#F6F1EA"></circle>
+  <path d="M0 180 C80 130 160 142 220 166 C290 190 340 130 400 142 L400 300 L0 300Z" fill={sierra}></path>
+  <path d="M0 232 C100 210 200 236 400 216 L400 300 L0 300Z" fill={suelo}></path>
+  {
+    conPiedra && (
+      <g transform="translate(160 196)">
+        <path
+          d="M8 72 C2 68 3 60 5 52 L15 20 C17 12 23 8 31 6 L51 1 C59 -1 66 4 68 11 C69 17 72 21 76 25 L89 54 C93 64 89 72 79 74 L20 76 C14 76 10 74 8 72Z"
+          fill="#5C4C3E"
+        ></path>
+        <path d="M44 22 C38 28 37 36 38 46 L39 66" fill="none" stroke="#F6F1EA" stroke-width="3" stroke-linecap="round"></path>
+        <path d="M20 22 L30 24" fill="none" stroke="#F6F1EA" stroke-width="3" stroke-linecap="round"></path>
+      </g>
+    )
+  }
+</svg>

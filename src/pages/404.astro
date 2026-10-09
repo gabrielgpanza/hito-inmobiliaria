@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import Paisaje from '../components/Paisaje.astro';
+---
+
+<Base titulo="Página no encontrada">
+  <section class="contenedor no-encontrada">
+    <div class="no-encontrada__imagen"><Paisaje variante={2} conPiedra /></div>
+    <h1>Acá no hay nada… todavía.</h1>
+    <p>La página que buscás no existe o la propiedad ya no está publicada.</p>
+    <a class="boton boton--oscuro" href="/propiedades/">Ver propiedades</a>
+  </section>
+</Base>
+
+<style>
+  .no-encontrada {
+    padding-block: 64px 96px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+  }
+  .no-encontrada__imagen {
+    width: min(100%, 420px);
+    aspect-ratio: 4 / 3;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  .no-encontrada__imagen :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  h1 {
+    font-size: clamp(2rem, 4vw, 2.6rem);
+  }
+  p {
+    color: var(--tierra);
+    font-size: 1.1rem;
+  }
+</style>

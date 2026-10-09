@@ -1,0 +1,142 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo-oscuro.png';
+import IconoWhatsApp from './IconoWhatsApp.astro';
+import { linkWhatsApp } from '../lib/propiedades';
+
+interface Props {
+  actual?: 'inicio' | 'propiedades';
+}
+const { actual } = Astro.props;
+
+const links = [
+  { href: '/propiedades/', texto: 'Propiedades', id: 'propiedades' },
+  { href: '/#localidades', texto: 'Localidades' },
+  { href: '/#construccion', texto: 'Construcción' },
+  { href: '/#contacto', texto: 'Contacto' },
+];
+---
+
+<header class="encabezado">
+  <div class="contenedor encabezado__fila">
+    <a href="/" class="encabezado__logo" aria-label="Hito, ir al inicio">
+      <Image src={logo} alt="hito desarrollos inmobiliarios" height={48} densities={[1, 2]} loading="eager" />
+    </a>
+
+    <nav class="encabezado__nav" aria-label="Principal">
+      {
+        links.map((l) => (
+          <a href={l.href} aria-current={l.id && l.id === actual ? 'page' : undefined}>
+            {l.texto}
+          </a>
+        ))
+      }
+      <a class="boton boton--tierra boton--chico" href={linkWhatsApp()} target="_blank" rel="noopener">
+        <IconoWhatsApp size={18} /> Escribinos
+      </a>
+    </nav>
+
+    <details class="encabezado__menu">
+      <summary aria-label="Abrir menú">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+      </summary>
+      <div class="encabezado__desplegable">
+        {links.map((l) => <a href={l.href}>{l.texto}</a>)}
+        <a class="boton boton--tierra" href={linkWhatsApp()} target="_blank" rel="noopener">
+          <IconoWhatsApp size={18} /> Escribinos por WhatsApp
+        </a>
+      </div>
+    </details>
+  </div>
+</header>
+
+<style>
+  .encabezado {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(247, 243, 238, 0.94);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--linea);
+  }
+  .encabezado__fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 14px;
+  }
+  .encabezado__logo img {
+    height: 48px;
+    width: auto;
+  }
+  .encabezado__nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    font-weight: 500;
+  }
+  .encabezado__nav a:not(.boton) {
+    text-decoration: none;
+    padding-block: 10px;
+  }
+  .encabezado__nav a[aria-current='page'] {
+    color: var(--carbon);
+    font-weight: 700;
+  }
+  .encabezado__menu {
+    display: none;
+    position: relative;
+  }
+  .encabezado__menu summary {
+    list-style: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--linea);
+    background: var(--blanco);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .encabezado__menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .encabezado__desplegable {
+    position: absolute;
+    right: 0;
+    top: 54px;
+    width: min(86vw, 320px);
+    background: var(--blanco);
+    border: 1px solid var(--linea);
+    border-radius: 18px;
+    box-shadow: var(--sombra);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  .encabezado__desplegable a:not(.boton) {
+    padding: 14px 12px;
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--carbon);
+    border-bottom: 1px solid var(--arena);
+  }
+  .encabezado__desplegable .boton {
+    margin-top: 10px;
+  }
+  @media (max-width: 860px) {
+    .encabezado__nav {
+      display: none;
+    }
+    .encabezado__menu {
+      display: block;
+    }
+    .encabezado__logo img {
+      height: 40px;
+    }
+  }
+</style>

@@ -1,0 +1,442 @@
+---
+import Base from '../../layouts/Base.astro';
+import TarjetaPropiedad from '../../components/TarjetaPropiedad.astro';
+import { linkWhatsApp, todasLasPropiedades } from '../../lib/propiedades';
+
+const propiedades = await todasLasPropiedades();
+
+const unicos = (valores: string[]) => [...new Set(valores)].sort((a, b) => a.localeCompare(b, 'es'));
+const localidades = unicos(propiedades.map((p) => p.data.localidad));
+const tipos = unicos(propiedades.map((p) => p.data.tipo));
+const operaciones = unicos(propiedades.map((p) => p.data.operacion));
+const hayDormitorios = propiedades.some((p) => p.data.dormitorios);
+const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
+---
+
+<Base
+  titulo="Propiedades"
+  descripcion="Terrenos, casas y locales disponibles. Filtrá por localidad, tipo y precio y consultá por WhatsApp."
+  actual="propiedades"
+>
+  <section class="contenedor encabezado-pagina">
+    <h1>Propiedades</h1>
+    <p>Filtrá y consultá por WhatsApp desde cada ficha.</p>
+  </section>
+
+  <div class="contenedor catalogo">
+    <details class="filtros" open id="filtros">
+      <summary>
+        <span>Filtros</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+      </summary>
+      <form class="filtros__cuerpo" id="form-filtros" onsubmit="return false">
+        <label class="campo">
+          Buscar
+          <input type="search" name="q" placeholder="Ej: pileta, esquina, lote 14" autocomplete="off" />
+        </label>
+
+        {
+          operaciones.length > 1 && (
+            <fieldset>
+              <legend>Operación</legend>
+              <div class="chips" data-grupo="op">
+                <button type="button" class="chip" data-valor="" aria-pressed="true">Todas</button>
+                {operaciones.map((o) => (
+                  <button type="button" class="chip" data-valor={o} aria-pressed="false">{o}</button>
+                ))}
+              </div>
+            </fieldset>
+          )
+        }
+
+        <fieldset>
+          <legend>Localidad</legend>
+          <div class="chips" data-grupo="localidad">
+            <button type="button" class="chip" data-valor="" aria-pressed="true">Todas</button>
+            {localidades.map((l) => <button type="button" class="chip" data-valor={l} aria-pressed="false">{l}</button>)}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Tipo</legend>
+          <div class="chips" data-grupo="tipo">
+            <button type="button" class="chip" data-valor="" aria-pressed="true">Todos</button>
+            {tipos.map((t) => <button type="button" class="chip" data-valor={t} aria-pressed="false">{t}</button>)}
+          </div>
+        </fieldset>
+
+        {
+          hayDormitorios && (
+            <fieldset>
+              <legend>Dormitorios</legend>
+              <div class="chips" data-grupo="dorm">
+                <button type="button" class="chip" data-valor="" aria-pressed="true">Todos</button>
+                <button type="button" class="chip" data-valor="1" aria-pressed="false">1+</button>
+                <button type="button" class="chip" data-valor="2" aria-pressed="false">2+</button>
+                <button type="button" class="chip" data-valor="3" aria-pressed="false">3+</button>
+              </div>
+            </fieldset>
+          )
+        }
+
+        <label class="campo">
+          Precio hasta
+          <select name="precio">
+            <option value="">Sin límite</option>
+            <option value="25000">USD 25.000</option>
+            <option value="50000">USD 50.000</option>
+            <option value="100000">USD 100.000</option>
+            <option value="200000">USD 200.000</option>
+          </select>
+        </label>
+
+        {
+          hayVendidas && (
+            <label class="interruptor">
+              <span>Mostrar vendidas</span>
+              <input type="checkbox" name="vendidas" checked role="switch" />
+            </label>
+          )
+        }
+
+        <button type="button" class="limpiar" id="limpiar">Limpiar filtros</button>
+      </form>
+    </details>
+
+    <div class="resultados">
+      <div class="resultados__barra">
+        <span aria-live="polite" id="contador"><b>{propiedades.length}</b> {propiedades.length === 1 ? 'propiedad' : 'propiedades'}</span>
+        <label class="ordenar">
+          Ordenar
+          <select id="orden" class="control">
+            <option value="recientes">Más recientes</option>
+            <option value="precio-asc">Menor precio</option>
+            <option value="precio-desc">Mayor precio</option>
+            <option value="superficie">Mayor superficie</option>
+          </select>
+        </label>
+      </div>
+
+      <ul class="grilla-props lista" id="lista">
+        {
+          propiedades.map((p, i) => (
+            <li
+              data-localidad={p.data.localidad}
+              data-tipo={p.data.tipo}
+              data-op={p.data.operacion}
+              data-estado={p.data.estado}
+              data-precio={p.data.moneda === 'USD' ? (p.data.precio ?? 0) : 0}
+              data-dorm={p.data.dormitorios ?? 0}
+              data-superficie={p.data.superficie_total ?? p.data.superficie_cubierta ?? 0}
+              data-orden={i}
+              data-texto={[p.data.titulo, p.data.localidad, p.data.tipo, p.data.ubicacion ?? '', p.data.descripcion ?? '']
+                .join(' ')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')}
+            >
+              <TarjetaPropiedad propiedad={p} cargaPrioritaria={i < 3} />
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="vacio" id="vacio" hidden>
+        <h2>No hay propiedades con esos filtros</h2>
+        <p>Contanos qué estás buscando y te avisamos cuando entre algo así.</p>
+        <a class="boton boton--tierra" href={linkWhatsApp('¡Hola Hito! Estoy buscando…')} target="_blank" rel="noopener">Avisame por WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .encabezado-pagina {
+    padding-block: 44px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .encabezado-pagina h1 {
+    font-size: clamp(2.2rem, 4.5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .encabezado-pagina p {
+    font-size: 1.1rem;
+    color: var(--tierra);
+  }
+  .catalogo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    align-items: flex-start;
+    padding-bottom: 96px;
+  }
+  .filtros {
+    flex: 1 1 260px;
+    max-width: 100%;
+    background: var(--blanco);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    position: sticky;
+    top: 92px;
+  }
+  .filtros summary {
+    display: none;
+  }
+  .filtros__cuerpo {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  legend {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0;
+    margin-bottom: 10px;
+  }
+  .interruptor {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid var(--linea);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .interruptor input {
+    appearance: none;
+    width: 56px;
+    height: 32px;
+    border-radius: 999px;
+    background: #cfc4b6;
+    position: relative;
+    cursor: pointer;
+    margin: 0;
+    flex: none;
+  }
+  .interruptor input::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--blanco);
+    transition: transform 0.15s;
+  }
+  .interruptor input:checked {
+    background: var(--tierra);
+  }
+  .interruptor input:checked::after {
+    transform: translateX(24px);
+  }
+  .limpiar {
+    align-self: flex-start;
+    border: 0;
+    background: none;
+    padding: 0;
+    min-height: 44px;
+    color: var(--tierra);
+    text-decoration: underline;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .resultados {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .resultados__barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--tierra);
+  }
+  .resultados__barra b {
+    color: var(--carbon);
+  }
+  .ordenar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ordenar .control {
+    width: auto;
+    background: var(--blanco);
+  }
+  .lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .lista li {
+    display: flex;
+  }
+  .lista li > :global(.tarjeta) {
+    flex: 1;
+  }
+  .lista li[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 860px) {
+    .filtros {
+      position: static;
+      flex-basis: 100%;
+    }
+    .filtros summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+      padding: 16px 20px;
+      min-height: 52px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .filtros summary::-webkit-details-marker {
+      display: none;
+    }
+    .filtros[open] summary svg {
+      transform: rotate(180deg);
+    }
+    .filtros__cuerpo {
+      padding-top: 4px;
+    }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('form-filtros') as HTMLFormElement;
+  const lista = document.getElementById('lista') as HTMLUListElement;
+  const items = [...lista.querySelectorAll<HTMLLIElement>(':scope > li')];
+  const contador = document.getElementById('contador')!;
+  const vacio = document.getElementById('vacio')!;
+  const orden = document.getElementById('orden') as HTMLSelectElement;
+  const detalles = document.getElementById('filtros') as HTMLDetailsElement;
+
+  const normalizar = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+  // En el celular los filtros arrancan cerrados para que se vean primero las propiedades.
+  if (window.matchMedia('(max-width: 860px)').matches) detalles.open = false;
+
+  const grupos = [...form.querySelectorAll<HTMLElement>('[data-grupo]')];
+
+  function valorGrupo(nombre: string): string {
+    const activo = form.querySelector<HTMLButtonElement>(`[data-grupo="${nombre}"] [aria-pressed="true"]`);
+    return activo?.dataset.valor ?? '';
+  }
+
+  function marcarGrupo(nombre: string, valor: string) {
+    const botones = form.querySelectorAll<HTMLButtonElement>(`[data-grupo="${nombre}"] button`);
+    let encontrado = false;
+    botones.forEach((b) => {
+      const activo = b.dataset.valor === valor;
+      b.setAttribute('aria-pressed', String(activo));
+      encontrado ||= activo;
+    });
+    if (!encontrado && botones[0]) botones[0].setAttribute('aria-pressed', 'true');
+  }
+
+  function leerFiltros() {
+    const datos = new FormData(form);
+    return {
+      q: normalizar(String(datos.get('q') ?? '')),
+      precio: Number(datos.get('precio') || 0),
+      vendidas: form.querySelector<HTMLInputElement>('[name="vendidas"]')?.checked ?? true,
+      localidad: valorGrupo('localidad'),
+      tipo: valorGrupo('tipo'),
+      op: valorGrupo('op'),
+      dorm: Number(valorGrupo('dorm') || 0),
+    };
+  }
+
+  function aplicar() {
+    const f = leerFiltros();
+    let visibles = 0;
+    for (const li of items) {
+      const d = li.dataset;
+      const precio = Number(d.precio);
+      const ok =
+        (!f.localidad || d.localidad === f.localidad) &&
+        (!f.tipo || d.tipo === f.tipo) &&
+        (!f.op || d.op === f.op) &&
+        (!f.dorm || Number(d.dorm) >= f.dorm) &&
+        (!f.precio || (precio > 0 && precio <= f.precio)) &&
+        (f.vendidas || d.estado !== 'vendido') &&
+        (!f.q || f.q.split(/\s+/).every((palabra) => d.texto!.includes(palabra)));
+      li.hidden = !ok;
+      if (ok) visibles++;
+    }
+    contador.innerHTML = `<b>${visibles}</b> ${visibles === 1 ? 'propiedad' : 'propiedades'}`;
+    vacio.hidden = visibles > 0;
+    guardarEnUrl(f);
+  }
+
+  function ordenar() {
+    const criterio = orden.value;
+    const num = (li: HTMLLIElement, k: string) => Number(li.dataset[k]);
+    const sinPrecioAlFinal = (li: HTMLLIElement) => (num(li, 'precio') > 0 ? num(li, 'precio') : Infinity);
+    const ordenados = [...items].sort((a, b) => {
+      if (criterio === 'precio-asc') return sinPrecioAlFinal(a) - sinPrecioAlFinal(b);
+      if (criterio === 'precio-desc') return num(b, 'precio') - num(a, 'precio');
+      if (criterio === 'superficie') return num(b, 'superficie') - num(a, 'superficie');
+      return num(a, 'orden') - num(b, 'orden');
+    });
+    lista.append(...ordenados);
+  }
+
+  function guardarEnUrl(f: ReturnType<typeof leerFiltros>) {
+    const p = new URLSearchParams();
+    if (f.localidad) p.set('localidad', f.localidad);
+    if (f.tipo) p.set('tipo', f.tipo);
+    if (f.op) p.set('op', f.op);
+    if (f.dorm) p.set('dorm', String(f.dorm));
+    if (f.precio) p.set('precio', String(f.precio));
+    if (f.q) p.set('q', f.q);
+    if (!f.vendidas) p.set('vendidas', '0');
+    const query = p.toString();
+    history.replaceState(null, '', query ? `?${query}` : location.pathname);
+  }
+
+  function leerUrl() {
+    const p = new URLSearchParams(location.search);
+    for (const g of grupos) marcarGrupo(g.dataset.grupo!, p.get(g.dataset.grupo!) ?? '');
+    (form.elements.namedItem('q') as HTMLInputElement).value = p.get('q') ?? '';
+    (form.elements.namedItem('precio') as HTMLSelectElement).value = p.get('precio') ?? '';
+    const vendidas = form.querySelector<HTMLInputElement>('[name="vendidas"]');
+    if (vendidas) vendidas.checked = p.get('vendidas') !== '0';
+  }
+
+  form.addEventListener('click', (e) => {
+    const boton = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-grupo] button');
+    if (!boton) return;
+    marcarGrupo(boton.closest<HTMLElement>('[data-grupo]')!.dataset.grupo!, boton.dataset.valor ?? '');
+    aplicar();
+  });
+  form.addEventListener('input', aplicar);
+  form.addEventListener('change', aplicar);
+  orden.addEventListener('change', ordenar);
+  document.getElementById('limpiar')!.addEventListener('click', () => {
+    form.reset();
+    grupos.forEach((g) => marcarGrupo(g.dataset.grupo!, ''));
+    aplicar();
+  });
+
+  leerUrl();
+  aplicar();
+</script>

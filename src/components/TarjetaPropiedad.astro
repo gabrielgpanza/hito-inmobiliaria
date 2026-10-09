@@ -1,0 +1,45 @@
+---
+import { Image } from 'astro:assets';
+import Paisaje from './Paisaje.astro';
+import { buscarImagen } from '../lib/imagenes';
+import { etiquetaEstado, formatoPrecio, resumen, semilla, urlPropiedad, type Propiedad } from '../lib/propiedades';
+
+interface Props {
+  propiedad: Propiedad;
+  cargaPrioritaria?: boolean;
+}
+const { propiedad: p, cargaPrioritaria = false } = Astro.props;
+const d = p.data;
+const portada = buscarImagen(d.fotos[0]);
+---
+
+<a class="tarjeta" href={urlPropiedad(p)}>
+  <div class="tarjeta__foto">
+    {
+      portada ? (
+        <Image
+          src={portada}
+          alt={d.titulo}
+          widths={[400, 640, 900]}
+          sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 400px"
+          loading={cargaPrioritaria ? 'eager' : 'lazy'}
+        />
+      ) : (
+        <Paisaje variante={semilla(p.id)} />
+      )
+    }
+    {d.estado === 'vendido' ? (
+      <div class="sello-vendido"><span>VENDIDO</span></div>
+    ) : (
+      <span class={`estado estado--${d.estado}`}>{etiquetaEstado[d.estado]}</span>
+    )}
+  </div>
+  <div class="tarjeta__cuerpo">
+    <span class="tarjeta__lugar">{d.localidad} · {d.tipo}</span>
+    <h3 class="tarjeta__titulo">{d.titulo}</h3>
+    <div class="tarjeta__pie">
+      <span class="tarjeta__resumen">{resumen(p)}</span>
+      <span class="tarjeta__precio">{formatoPrecio(p)}</span>
+    </div>
+  </div>
+</a>

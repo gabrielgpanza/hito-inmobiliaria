@@ -1,0 +1,175 @@
+# Configuración del panel de carga (Pages CMS: https://app.pagescms.org)
+# Define qué campos ve quien carga propiedades. Cada propiedad se guarda como
+# un archivo en src/content/propiedades y las fotos en src/assets/uploads.
+
+media:
+  input: src/assets/uploads
+  output: /src/assets/uploads
+
+content:
+  - name: propiedades
+    label: Propiedades
+    type: collection
+    path: src/content/propiedades
+    filename: "{fields.titulo}.md"
+    view:
+      primary: titulo
+      fields: [titulo, estado, localidad, precio]
+      sort: [fecha, titulo, estado]
+      default:
+        sort: fecha
+        order: desc
+      search: [titulo, localidad, tipo]
+    fields:
+      - name: titulo
+        label: Título
+        type: string
+        required: true
+        description: "Ej: Lote 12 en barrio norte"
+      - name: estado
+        label: Estado
+        type: select
+        default: disponible
+        required: true
+        options:
+          values:
+            - value: disponible
+              label: Disponible
+            - value: reservado
+              label: Reservado
+            - value: vendido
+              label: Vendido
+      - name: destacada
+        label: Destacar en la portada
+        type: boolean
+        default: false
+      - name: operacion
+        label: Operación
+        type: select
+        default: Venta
+        options:
+          values: [Venta, Alquiler]
+      - name: tipo
+        label: Tipo
+        type: select
+        default: Lote
+        options:
+          values: [Lote, Casa, Departamento, Dúplex, Local, Galpón, Campo, Otro]
+      - name: localidad
+        label: Localidad
+        type: string
+        required: true
+        description: "Escribila siempre igual (ej: Huinca Renancó) para que el filtro las agrupe."
+      - name: ubicacion
+        label: Barrio o calle
+        type: string
+      - name: precio
+        label: Precio (solo el número, sin puntos)
+        type: number
+        description: "Dejalo vacío para mostrar «Consultar»."
+      - name: moneda
+        label: Moneda
+        type: select
+        default: USD
+        options:
+          values: [USD, ARS]
+      - name: financiacion
+        label: Financiación
+        type: string
+        description: "Ej: Hasta 24 cuotas. Opcional."
+      - name: superficie_total
+        label: Superficie total (m²)
+        type: number
+      - name: superficie_cubierta
+        label: Superficie cubierta (m²)
+        type: number
+      - name: medidas
+        label: Medidas
+        type: string
+        description: "Ej: 20 × 25 m"
+      - name: dormitorios
+        label: Dormitorios
+        type: number
+      - name: banos
+        label: Baños
+        type: number
+      - name: servicios
+        label: Servicios
+        type: string
+        list: true
+        description: "Uno por renglón: Luz, Agua, Gas natural, Cloacas…"
+      - name: escritura
+        label: Escritura
+        type: string
+        description: "Ej: Lista para escriturar"
+      - name: descripcion
+        label: Descripción
+        type: text
+        description: "Dejá una línea en blanco para empezar un párrafo nuevo."
+      - name: fotos
+        label: Fotos (la primera es la portada)
+        type: image
+        list: true
+      - name: video
+        label: Video (link de YouTube)
+        type: string
+        description: "Subilo a YouTube como «Oculto» y con «Permitir insertar» activado. Pegá acá el link."
+      - name: mapa
+        label: Link de Google Maps
+        type: string
+      - name: fecha
+        label: Fecha de publicación
+        type: date
+
+  - name: sitio
+    label: Datos del sitio
+    type: file
+    path: src/data/sitio.json
+    fields:
+      - name: nombre
+        label: Nombre
+        type: string
+      - name: whatsapp
+        label: WhatsApp (formato internacional, solo números)
+        type: string
+        description: "Ej: 5493385123456 (54 + 9 + código de área sin 0 + número sin 15)."
+      - name: whatsapp_visible
+        label: WhatsApp como se muestra
+        type: string
+        description: "Ej: 3385 12-3456"
+      - name: email
+        label: Email
+        type: string
+      - name: instagram
+        label: Usuario de Instagram (sin @)
+        type: string
+      - name: direccion
+        label: Dirección
+        type: string
+      - name: ciudad
+        label: Ciudad
+        type: string
+      - name: horario
+        label: Horario de atención
+        type: string
+      - name: hero_volanta
+        label: Portada · texto chico de arriba
+        type: string
+      - name: hero_titulo
+        label: Portada · título
+        type: string
+      - name: hero_texto
+        label: Portada · texto
+        type: text
+      - name: hero_imagen
+        label: Portada · foto
+        type: image
+      - name: construccion_titulo
+        label: Construcción · título
+        type: string
+      - name: construccion_texto
+        label: Construcción · texto
+        type: text
+      - name: construccion_imagen
+        label: Construcción · foto
+        type: image

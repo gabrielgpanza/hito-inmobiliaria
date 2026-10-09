@@ -1,0 +1,62 @@
+---
+import '../styles/global.css';
+import Encabezado from '../components/Encabezado.astro';
+import Pie from '../components/Pie.astro';
+import IconoWhatsApp from '../components/IconoWhatsApp.astro';
+import sitio from '../data/sitio.json';
+import { linkWhatsApp } from '../lib/propiedades';
+
+interface Props {
+  titulo?: string;
+  descripcion?: string;
+  imagen?: string;
+  actual?: 'inicio' | 'propiedades';
+  mensajeWhatsApp?: string;
+}
+
+const {
+  titulo,
+  descripcion = 'Terrenos, casas y construcción a medida. Mirá las propiedades disponibles y consultanos por WhatsApp.',
+  imagen = '/og-hito.jpg',
+  actual,
+  mensajeWhatsApp,
+} = Astro.props;
+
+const tituloCompleto = titulo ? `${titulo} | Hito Inmobiliaria` : 'Hito | Desarrollos Inmobiliarios';
+const canonica = new URL(Astro.url.pathname, Astro.site);
+const imagenAbsoluta = new URL(imagen, Astro.site);
+---
+
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#98846C" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content={sitio.nombre} />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={canonica} />
+    <meta property="og:image" content={imagenAbsoluta} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body>
+    <a class="sr-only" href="#contenido">Saltar al contenido</a>
+    <Encabezado actual={actual} />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Pie />
+    <a class="wa-flotante" href={linkWhatsApp(mensajeWhatsApp)} target="_blank" rel="noopener" aria-label="Escribinos por WhatsApp">
+      <IconoWhatsApp size={28} />
+    </a>
+  </body>
+</html>

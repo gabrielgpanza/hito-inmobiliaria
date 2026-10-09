@@ -1,0 +1,664 @@
+---
+import { Image, getImage } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Paisaje from '../../components/Paisaje.astro';
+import TarjetaPropiedad from '../../components/TarjetaPropiedad.astro';
+import IconoWhatsApp from '../../components/IconoWhatsApp.astro';
+import { fotosDe } from '../../lib/imagenes';
+import {
+  etiquetaEstado,
+  formatoPrecio,
+  idYouTube,
+  linkWhatsApp,
+  m2,
+  parrafos,
+  semilla,
+  todasLasPropiedades,
+  type Propiedad,
+} from '../../lib/propiedades';
+
+export async function getStaticPaths() {
+  const propiedades = await todasLasPropiedades();
+  return propiedades.map((propiedad) => ({ params: { id: propiedad.id }, props: { propiedad, todas: propiedades } }));
+}
+
+interface Props {
+  propiedad: Propiedad;
+  todas: Propiedad[];
+}
+
+const { propiedad: p, todas } = Astro.props;
+const d = p.data;
+const fotos = fotosDe(d.fotos);
+const video = idYouTube(d.video);
+const vendida = d.estado === 'vendido';
+
+const datos = [
+  { etiqueta: 'Superficie total', valor: m2(d.superficie_total) },
+  { etiqueta: 'Superficie cubierta', valor: m2(d.superficie_cubierta) },
+  { etiqueta: 'Medidas', valor: d.medidas },
+  { etiqueta: 'Dormitorios', valor: d.dormitorios?.toString() },
+  { etiqueta: 'Baños', valor: d.banos?.toString() },
+  { etiqueta: 'Escritura', valor: d.escritura },
+  { etiqueta: 'Servicios', valor: d.servicios.length ? d.servicios.join(' · ') : undefined },
+  { etiqueta: 'Financiación', valor: d.financiacion },
+].filter((x) => x.valor);
+
+const lugar = [d.ubicacion, d.localidad].filter(Boolean).join(', ');
+const precio = formatoPrecio(p);
+const referencia = `${d.titulo} (${d.localidad})`;
+const mensajeBase = vendida
+  ? `¡Hola Hito! Vi que se vendió: ${referencia}. Busco algo parecido.`
+  : `¡Hola Hito! Me interesa: ${referencia}.`;
+
+const intereses = vendida
+  ? [
+      { texto: 'Opciones parecidas', frase: 'ver opciones parecidas', marcado: true },
+      { texto: 'Avisarme cuando entre algo', frase: 'que me avisen cuando entre algo así', marcado: true },
+      { texto: 'Formas de pago', frase: 'conocer las formas de pago', marcado: false },
+    ]
+  : [
+      { texto: 'Coordinar una visita', frase: 'coordinar una visita', marcado: true },
+      { texto: 'Formas de pago', frase: 'conocer las formas de pago', marcado: true },
+      { texto: 'Más fotos y video', frase: 'ver más fotos y video', marcado: false },
+      { texto: 'Escritura y papeles', frase: 'saber el estado de la escritura', marcado: false },
+      { texto: 'Opciones parecidas', frase: 'ver opciones parecidas', marcado: false },
+    ];
+
+const parecidas = todas
+  .filter((x) => x.id !== p.id && x.data.estado !== 'vendido' && (x.data.localidad === d.localidad || x.data.tipo === d.tipo))
+  .slice(0, 3);
+
+const og = fotos[0] ? await getImage({ src: fotos[0], width: 1200, height: 630, format: 'jpg', fit: 'cover' }) : undefined;
+const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.descripcion)[0] ?? ''}`.slice(0, 158);
+---
+
+<Base titulo={`${d.titulo} · ${d.localidad}`} descripcion={descripcionMeta} imagen={og?.src} mensajeWhatsApp={mensajeBase}>
+  <div class="contenedor ficha">
+    <nav class="migas" aria-label="Ruta">
+      <a href="/propiedades/">Propiedades</a>
+      <span aria-hidden="true">/</span>
+      <a href={`/propiedades/?localidad=${encodeURIComponent(d.localidad)}`}>{d.localidad}</a>
+      <span aria-hidden="true">/</span>
+      <span>{d.titulo}</span>
+    </nav>
+
+    <section class="galeria" aria-label="Fotos">
+      <div class="galeria__principal">
+        <ul class="galeria__pista" id="pista">
+          {
+            fotos.length > 0 ? (
+              fotos.map((foto, i) => (
+                <li>
+                  <Image
+                    src={foto}
+                    alt={`${d.titulo}, foto ${i + 1} de ${fotos.length}`}
+                    widths={[640, 1000, 1400]}
+                    sizes="(max-width: 1280px) 100vw, 1200px"
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    fetchpriority={i === 0 ? 'high' : undefined}
+                  />
+                </li>
+              ))
+            ) : (
+              <li>
+                <Paisaje variante={semilla(p.id)} conPiedra />
+              </li>
+            )
+          }
+        </ul>
+        {vendida && <div class="sello-vendido"><span>VENDIDO</span></div>}
+        {
+          fotos.length > 1 && (
+            <>
+              <button class="galeria__flecha galeria__flecha--izq" type="button" data-mover="-1" aria-label="Foto anterior">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
+              </button>
+              <button class="galeria__flecha galeria__flecha--der" type="button" data-mover="1" aria-label="Foto siguiente">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+              </button>
+              <span class="galeria__contador" id="contador-fotos">1 / {fotos.length}</span>
+            </>
+          )
+        }
+      </div>
+      {
+        fotos.length > 1 && (
+          <div class="galeria__miniaturas">
+            {fotos.map((foto, i) => (
+              <button type="button" data-ir={i} aria-label={`Ver foto ${i + 1}`} aria-current={i === 0 ? 'true' : undefined}>
+                <Image src={foto} alt="" width={160} height={110} densities={[1, 2]} loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )
+      }
+    </section>
+
+    <div class="ficha__cuerpo">
+      <div class="ficha__datos">
+        <header class="ficha__titulo">
+          <div class="ficha__etiquetas">
+            <span class={`estado estado--${d.estado} estado--borde`}>{etiquetaEstado[d.estado]}</span>
+            <span class="tarjeta__lugar">{d.operacion} · {d.tipo} · {d.localidad}</span>
+          </div>
+          <h1>{d.titulo}</h1>
+          {lugar && <p class="ficha__lugar">{lugar}</p>}
+          <p class="ficha__precio">
+            {precio}
+            {d.financiacion && !vendida && <span> · {d.financiacion}</span>}
+          </p>
+        </header>
+
+        {
+          vendida && (
+            <div class="aviso-vendida">
+              <p>Esta propiedad ya se vendió. Si buscás algo parecido, escribinos y te avisamos cuando entre.</p>
+              <a class="boton boton--oscuro boton--chico" href="/propiedades/">Ver disponibles</a>
+            </div>
+          )
+        }
+
+        {
+          datos.length > 0 && (
+            <dl class="datos">
+              {datos.map((x) => (
+                <div>
+                  <dt>{x.etiqueta}</dt>
+                  <dd>{x.valor}</dd>
+                </div>
+              ))}
+            </dl>
+          )
+        }
+
+        {
+          parrafos(d.descripcion).length > 0 && (
+            <section class="bloque">
+              <h2>Descripción</h2>
+              {parrafos(d.descripcion).map((t) => <p>{t}</p>)}
+            </section>
+          )
+        }
+
+        {
+          video && (
+            <section class="bloque">
+              <h2>Video</h2>
+              <div class="video" data-video={video}>
+                <button type="button" class="video__play" aria-label="Reproducir video">
+                  <img src={`https://i.ytimg.com/vi/${video}/hqdefault.jpg`} alt="" loading="lazy" width="480" height="360" />
+                  <span class="video__boton" aria-hidden="true">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                  </span>
+                </button>
+              </div>
+            </section>
+          )
+        }
+
+        {
+          d.mapa && (
+            <section class="bloque">
+              <h2>Ubicación</h2>
+              <a class="boton boton--borde" href={d.mapa} target="_blank" rel="noopener">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
+                Ver en Google Maps
+              </a>
+            </section>
+          )
+        }
+      </div>
+
+      <aside class="consulta" aria-labelledby="consulta-titulo">
+        <h2 id="consulta-titulo">{vendida ? '¿Buscás algo parecido?' : '¿Te interesa?'}</h2>
+        <p>Marcá lo que querés saber y te armamos el mensaje para WhatsApp.</p>
+        <form id="form-consulta" data-base={mensajeBase} onsubmit="return false">
+          <label class="campo">
+            Tu nombre
+            <input type="text" name="nombre" placeholder="Ej: Laura" autocomplete="given-name" />
+          </label>
+          <fieldset>
+            <legend>Me interesa saber</legend>
+            <div class="chips">
+              {
+                intereses.map((x) => (
+                  <button type="button" class="chip" data-frase={x.frase} aria-pressed={x.marcado ? 'true' : 'false'}>
+                    {x.texto}
+                  </button>
+                ))
+              }
+            </div>
+          </fieldset>
+          <div class="consulta__vista">
+            <span>Vista previa del mensaje</span>
+            <p id="vista-mensaje">{mensajeBase}</p>
+          </div>
+          <a class="boton boton--oscuro" id="enviar-whatsapp" href={linkWhatsApp(mensajeBase)} target="_blank" rel="noopener">
+            <IconoWhatsApp /> Enviar por WhatsApp
+          </a>
+          <small>Se abre WhatsApp con el mensaje listo. Vos decidís si lo mandás.</small>
+        </form>
+      </aside>
+    </div>
+
+    {
+      parecidas.length > 0 && (
+        <section class="parecidas">
+          <h2 class="titulo-seccion">También te puede interesar</h2>
+          <div class="grilla-props">
+            {parecidas.map((x) => <TarjetaPropiedad propiedad={x} />)}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .ficha {
+    padding-block: 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .migas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: var(--suave);
+  }
+  .migas span:last-child {
+    color: var(--carbon);
+  }
+
+  .galeria {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .galeria__principal {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--arena);
+  }
+  .galeria__pista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    aspect-ratio: 16 / 8;
+  }
+  .galeria__pista::-webkit-scrollbar {
+    display: none;
+  }
+  .galeria__pista li {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+  }
+  .galeria__pista :global(img),
+  .galeria__pista :global(svg) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .galeria__flecha {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--carbon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--sombra);
+  }
+  .galeria__flecha--izq {
+    left: 16px;
+  }
+  .galeria__flecha--der {
+    right: 16px;
+  }
+  .galeria__contador {
+    position: absolute;
+    left: 18px;
+    bottom: 16px;
+    background: rgba(47, 40, 34, 0.78);
+    color: var(--blanco);
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .galeria__miniaturas {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .galeria__miniaturas button {
+    flex: none;
+    width: 120px;
+    height: 82px;
+    padding: 0;
+    border: 3px solid transparent;
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--arena);
+  }
+  .galeria__miniaturas button[aria-current='true'] {
+    border-color: var(--carbon);
+  }
+  .galeria__miniaturas :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ficha__cuerpo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    align-items: flex-start;
+  }
+  .ficha__datos {
+    flex: 999 1 540px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .ficha__titulo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ficha__etiquetas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .estado--borde {
+    border: 1px solid var(--linea);
+  }
+  .estado--borde.estado--disponible {
+    background: var(--verde-fondo);
+    border-color: transparent;
+  }
+  .estado--borde.estado--reservado {
+    background: var(--ambar-fondo);
+    border-color: transparent;
+  }
+  .ficha h1 {
+    font-size: clamp(2rem, 4.2vw, 2.9rem);
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .ficha__lugar {
+    color: var(--tierra);
+    font-size: 1.1rem;
+  }
+  .ficha__precio {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  .ficha__precio span {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--tierra);
+  }
+  .aviso-vendida {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: var(--arena);
+    border-radius: 18px;
+    padding: 18px 20px;
+  }
+  .datos {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+    gap: 12px;
+  }
+  .datos div {
+    background: var(--blanco);
+    border: 1px solid var(--linea);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .datos dt {
+    font-size: 0.88rem;
+    color: var(--suave);
+  }
+  .datos dd {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+  .bloque {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .bloque h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .bloque p {
+    font-size: 1.1rem;
+    line-height: 1.65;
+    color: var(--texto);
+    max-width: 44em;
+  }
+  .bloque .boton {
+    align-self: flex-start;
+  }
+  .video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--carbon);
+  }
+  .video__play {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    background: var(--carbon);
+  }
+  .video__play img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.85;
+  }
+  .video__boton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: var(--blanco);
+    color: var(--carbon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 4px;
+  }
+  .video :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .consulta {
+    flex: 1 1 340px;
+    max-width: 100%;
+    position: sticky;
+    top: 92px;
+    background: var(--blanco);
+    border: 1px solid var(--linea);
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: var(--sombra);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .consulta h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  .consulta > p {
+    color: var(--tierra);
+  }
+  .consulta form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .consulta fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .consulta legend {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0;
+    margin-bottom: 10px;
+  }
+  .consulta__vista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .consulta__vista p {
+    background: #e7f3e8;
+    color: #1f3326;
+    border-radius: 16px 16px 4px 16px;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.5;
+    white-space: pre-line;
+  }
+  .consulta small {
+    color: var(--suave);
+    text-align: center;
+    font-size: 0.82rem;
+  }
+  .parecidas {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  @media (max-width: 700px) {
+    .galeria__pista {
+      aspect-ratio: 4 / 3;
+    }
+    .galeria__flecha {
+      display: none;
+    }
+    .consulta {
+      position: static;
+    }
+  }
+</style>
+
+<script>
+  // Galería: flechas, miniaturas y contador.
+  const pista = document.getElementById('pista');
+  if (pista) {
+    const total = pista.children.length;
+    const contador = document.getElementById('contador-fotos');
+    const miniaturas = [...document.querySelectorAll<HTMLButtonElement>('[data-ir]')];
+    const actual = () => Math.round(pista.scrollLeft / pista.clientWidth);
+    const ir = (i: number) => pista.scrollTo({ left: ((i + total) % total) * pista.clientWidth, behavior: 'smooth' });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-mover]').forEach((b) =>
+      b.addEventListener('click', () => ir(actual() + Number(b.dataset.mover))),
+    );
+    miniaturas.forEach((b) => b.addEventListener('click', () => ir(Number(b.dataset.ir))));
+    pista.addEventListener(
+      'scroll',
+      () => {
+        const i = actual();
+        if (contador) contador.textContent = `${i + 1} / ${total}`;
+        miniaturas.forEach((b, j) => (j === i ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current')));
+      },
+      { passive: true },
+    );
+  }
+
+  // Video de YouTube: se carga recién cuando tocan play (la página queda liviana).
+  document.querySelectorAll<HTMLElement>('[data-video]').forEach((caja) => {
+    caja.querySelector('button')?.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${caja.dataset.video}?autoplay=1&rel=0`;
+      iframe.title = 'Video de la propiedad';
+      iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+      iframe.allowFullscreen = true;
+      caja.replaceChildren(iframe);
+    });
+  });
+
+  // Consulta: arma el mensaje de WhatsApp con lo que la persona marcó.
+  const form = document.getElementById('form-consulta') as HTMLFormElement | null;
+  if (form) {
+    const vista = document.getElementById('vista-mensaje')!;
+    const enlace = document.getElementById('enviar-whatsapp') as HTMLAnchorElement;
+    const base = form.dataset.base!;
+    const numero = new URL(enlace.href).pathname;
+
+    const actualizar = () => {
+      const nombre = (form.elements.namedItem('nombre') as HTMLInputElement).value.trim();
+      const frases = [...form.querySelectorAll<HTMLButtonElement>('.chip[aria-pressed="true"]')].map((b) => b.dataset.frase!);
+      let pedido = '';
+      if (frases.length === 1) pedido = frases[0];
+      if (frases.length > 1) pedido = `${frases.slice(0, -1).join(', ')} y ${frases.at(-1)}`;
+
+      const saludo = nombre ? `${base.replace('¡Hola Hito!', `¡Hola Hito! Soy ${nombre}.`)}` : base;
+      const mensaje = pedido ? `${saludo}\nQuisiera ${pedido}.` : saludo;
+      vista.textContent = mensaje;
+      enlace.href = `https://wa.me${numero}?text=${encodeURIComponent(mensaje)}`;
+    };
+
+    form.addEventListener('click', (e) => {
+      const chip = (e.target as HTMLElement).closest<HTMLButtonElement>('.chip');
+      if (!chip) return;
+      chip.setAttribute('aria-pressed', chip.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+      actualizar();
+    });
+    form.addEventListener('input', actualizar);
+    actualizar();
+  }
+</script>

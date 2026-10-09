@@ -1,0 +1,436 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import TarjetaPropiedad from '../components/TarjetaPropiedad.astro';
+import Paisaje from '../components/Paisaje.astro';
+import IconoWhatsApp from '../components/IconoWhatsApp.astro';
+import logoBlanco from '../assets/brand/logo-blanco.png';
+import sitio from '../data/sitio.json';
+import { buscarImagen } from '../lib/imagenes';
+import { linkWhatsApp, semilla, todasLasPropiedades } from '../lib/propiedades';
+
+const propiedades = await todasLasPropiedades();
+const activas = propiedades.filter((p) => p.data.estado !== 'vendido');
+
+const elegidas = activas.filter((p) => p.data.destacada);
+const destacadas = (elegidas.length ? elegidas : activas).slice(0, 6);
+
+const localidades = [...new Set(propiedades.map((p) => p.data.localidad))]
+  .map((nombre) => {
+    const deAca = propiedades.filter((p) => p.data.localidad === nombre);
+    const conFoto = deAca.find((p) => buscarImagen(p.data.fotos[0]));
+    return {
+      nombre,
+      cantidad: deAca.filter((p) => p.data.estado !== 'vendido').length,
+      foto: conFoto ? buscarImagen(conFoto.data.fotos[0]) : undefined,
+    };
+  })
+  .sort((a, b) => b.cantidad - a.cantidad);
+
+const tipos = [...new Set(propiedades.map((p) => p.data.tipo))].sort();
+
+const heroFoto = buscarImagen(sitio.hero_imagen);
+const construccionFoto = buscarImagen(sitio.construccion_imagen);
+---
+
+<Base actual="inicio">
+  <section class="contenedor hero">
+    <div class="hero__texto">
+      <span class="volanta">{sitio.hero_volanta}</span>
+      <h1>{sitio.hero_titulo}</h1>
+      <p>{sitio.hero_texto}</p>
+      <div class="hero__acciones">
+        <a class="boton boton--oscuro" href="/propiedades/">Ver propiedades</a>
+        <a class="boton boton--borde" href={linkWhatsApp('¡Hola Hito! Quería hacerles una consulta.')} target="_blank" rel="noopener">
+          <IconoWhatsApp /> Consultar por WhatsApp
+        </a>
+      </div>
+    </div>
+    <div class="hero__imagen">
+      {
+        heroFoto ? (
+          <Image src={heroFoto} alt="" widths={[600, 900, 1200]} sizes="(max-width: 900px) 100vw, 600px" loading="eager" fetchpriority="high" />
+        ) : (
+          <Paisaje variante={0} conPiedra />
+        )
+      }
+    </div>
+  </section>
+
+  <section class="contenedor buscador-seccion" aria-label="Buscar propiedades">
+    <form class="buscador" action="/propiedades/" method="get">
+      <label class="campo">
+        Localidad
+        <select name="localidad">
+          <option value="">Todas</option>
+          {localidades.map((l) => <option value={l.nombre}>{l.nombre}</option>)}
+        </select>
+      </label>
+      <label class="campo">
+        Tipo
+        <select name="tipo">
+          <option value="">Todos</option>
+          {tipos.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </label>
+      <label class="campo">
+        Precio hasta
+        <select name="precio">
+          <option value="">Sin límite</option>
+          <option value="25000">USD 25.000</option>
+          <option value="50000">USD 50.000</option>
+          <option value="100000">USD 100.000</option>
+          <option value="200000">USD 200.000</option>
+        </select>
+      </label>
+      <button class="boton boton--tierra" type="submit">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        Buscar
+      </button>
+    </form>
+  </section>
+
+  {
+    destacadas.length > 0 && (
+      <section class="seccion seccion--blanca">
+        <div class="contenedor">
+          <div class="cabecera-seccion">
+            <div>
+              <span class="volanta">Destacados</span>
+              <h2 class="titulo-seccion">Oportunidades de esta semana</h2>
+            </div>
+            <a href="/propiedades/" class="ver-todas">Ver todas las propiedades →</a>
+          </div>
+          <div class="grilla-props">
+            {destacadas.map((p) => <TarjetaPropiedad propiedad={p} />)}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="seccion contenedor" id="como">
+    <div class="cabecera-seccion">
+      <div>
+        <span class="volanta">Cómo trabajamos</span>
+        <h2 class="titulo-seccion">De la vidriera a tu terreno, en tres pasos</h2>
+      </div>
+    </div>
+    <ol class="pasos">
+      <li>
+        <span class="pasos__numero">01</span>
+        <h3>Elegí</h3>
+        <p>Filtrá por localidad, tipo y precio. Cada ficha tiene fotos, medidas y ubicación.</p>
+      </li>
+      <li>
+        <span class="pasos__numero">02</span>
+        <h3>Consultá por WhatsApp</h3>
+        <p>Marcá qué te interesa y el mensaje sale armado con la propiedad. Sin formularios eternos.</p>
+      </li>
+      <li>
+        <span class="pasos__numero">03</span>
+        <h3>Visitá y decidí</h3>
+        <p>Coordinamos la visita y te acompañamos con la documentación y las formas de pago.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="contenedor construccion-seccion" id="construccion">
+    <div class="construccion">
+      <div class="construccion__imagen">
+        {
+          construccionFoto ? (
+            <Image src={construccionFoto} alt="" widths={[600, 900]} sizes="(max-width: 900px) 100vw, 600px" />
+          ) : (
+            <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect width="600" height="400" fill="#CDBEAB" />
+              <path d="M0 300 C160 280 380 300 600 286 L600 400 L0 400Z" fill="#8C7863" />
+              <rect x="170" y="170" width="260" height="130" fill="#F6F1EA" />
+              <path d="M150 176 L300 96 L450 176Z" fill="#5C4C3E" />
+              <rect x="280" y="226" width="40" height="74" fill="#98846C" />
+              <rect x="200" y="200" width="54" height="40" fill="#AC9883" />
+              <rect x="346" y="200" width="54" height="40" fill="#AC9883" />
+            </svg>
+          )
+        }
+      </div>
+      <div class="construccion__texto">
+        <span class="volanta">Construcción a medida</span>
+        <h2 class="titulo-seccion">{sitio.construccion_titulo}</h2>
+        <p>{sitio.construccion_texto}</p>
+        <a class="boton boton--blanco" href={linkWhatsApp('¡Hola Hito! Quería consultar por la construcción de una casa.')} target="_blank" rel="noopener">
+          Consultar por construcción
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {
+    localidades.length > 0 && (
+      <section class="seccion seccion--blanca" id="localidades">
+        <div class="contenedor">
+          <div class="cabecera-seccion">
+            <div>
+              <span class="volanta">Localidades</span>
+              <h2 class="titulo-seccion">¿Dónde te imaginás?</h2>
+            </div>
+          </div>
+          <div class="localidades">
+            {localidades.map((l) => (
+              <a class="localidad" href={`/propiedades/?localidad=${encodeURIComponent(l.nombre)}`}>
+                {l.foto ? (
+                  <Image src={l.foto} alt="" widths={[400, 700]} sizes="(max-width: 640px) 100vw, 300px" />
+                ) : (
+                  <Paisaje variante={semilla(l.nombre)} />
+                )}
+                <div class="localidad__texto">
+                  <span class="localidad__nombre">{l.nombre}</span>
+                  <span>{l.cantidad === 1 ? '1 disponible' : `${l.cantidad} disponibles`}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="seccion contenedor" id="contacto">
+    <div class="cta">
+      <div class="cta__texto">
+        <h2>¿Viste algo que te gusta?</h2>
+        <p>Contanos qué estás buscando y te mandamos las opciones que mejor encajan. También podés visitarnos en {sitio.direccion}, {sitio.ciudad}.</p>
+        <a class="boton boton--blanco" href={linkWhatsApp('¡Hola Hito! Estoy buscando…')} target="_blank" rel="noopener">
+          <IconoWhatsApp /> Escribir por WhatsApp
+        </a>
+      </div>
+      <Image src={logoBlanco} alt="" width={360} densities={[1, 2]} class="cta__logo" />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 48px;
+    padding-block: clamp(40px, 7vw, 72px) 40px;
+  }
+  .hero__texto {
+    flex: 1 1 440px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 5.4vw, 4rem);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .hero p {
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--tierra);
+    max-width: 34em;
+  }
+  .hero__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .hero__imagen {
+    flex: 1 1 420px;
+    min-width: 0;
+    aspect-ratio: 6 / 5;
+    max-height: 520px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: var(--arena);
+  }
+  .hero__imagen :global(img),
+  .hero__imagen :global(svg) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .buscador-seccion {
+    padding-bottom: clamp(48px, 7vw, 72px);
+  }
+  .buscador {
+    background: var(--blanco);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    padding: 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    align-items: end;
+    box-shadow: var(--sombra);
+  }
+  .buscador .campo {
+    color: var(--suave);
+  }
+
+  .ver-todas {
+    font-weight: 600;
+  }
+
+  .pasos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 22px;
+  }
+  .pasos li {
+    background: var(--arena);
+    border-radius: var(--radio);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pasos__numero {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--piedra);
+    line-height: 1;
+  }
+  .pasos h3 {
+    font-size: 1.35rem;
+  }
+  .pasos p {
+    color: var(--tierra);
+    font-size: 1.05rem;
+  }
+
+  .construccion-seccion {
+    padding-bottom: clamp(56px, 8vw, 88px);
+  }
+  .construccion {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 28px;
+    overflow: hidden;
+    background: var(--carbon);
+  }
+  .construccion__imagen {
+    flex: 1 1 400px;
+    min-height: 320px;
+    position: relative;
+    background: var(--tierra);
+  }
+  .construccion__imagen :global(img),
+  .construccion__imagen svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .construccion__texto {
+    flex: 1 1 400px;
+    padding: clamp(32px, 5vw, 56px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+    color: var(--blanco);
+  }
+  .construccion__texto .volanta {
+    color: #cfc4b6;
+  }
+  .construccion__texto p {
+    color: var(--linea);
+    font-size: 1.1rem;
+  }
+  .construccion__texto .boton {
+    align-self: flex-start;
+  }
+
+  .localidades {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+    gap: 20px;
+  }
+  .localidad {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1.05;
+    border-radius: var(--radio);
+    overflow: hidden;
+    text-decoration: none;
+    background: var(--arena);
+  }
+  .localidad :global(img),
+  .localidad :global(svg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .localidad:hover :global(img),
+  .localidad:hover :global(svg) {
+    transform: scale(1.03);
+  }
+  .localidad__texto {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--blanco);
+    background: linear-gradient(to top, rgba(47, 40, 34, 0.85), rgba(47, 40, 34, 0));
+  }
+  .localidad__nombre {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .cta {
+    background: var(--piedra-oscura);
+    border-radius: 32px;
+    padding: clamp(32px, 5vw, 56px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .cta__texto {
+    flex: 1 1 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: var(--blanco);
+  }
+  .cta h2 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+  }
+  .cta p {
+    font-size: 1.15rem;
+    max-width: 30em;
+  }
+  .cta .boton {
+    align-self: flex-start;
+    margin-top: 6px;
+  }
+  .cta :global(.cta__logo) {
+    flex: 0 1 360px;
+    width: 360px;
+    height: auto;
+  }
+  @media (max-width: 700px) {
+    .cta :global(.cta__logo) {
+      display: none;
+    }
+  }
+</style>
