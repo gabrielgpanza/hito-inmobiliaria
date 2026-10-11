@@ -2,9 +2,9 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Dirección pública del sitio. En Cloudflare se define la variable SITE_URL
-// (ej: https://hito.com.ar). Si no está, se usa la URL de la vista previa de Cloudflare.
-const site = process.env.SITE_URL || process.env.CF_PAGES_URL || 'http://localhost:4321';
+// Dirección pública del sitio: se usa en la dirección canónica, el mapa del sitio, robots.txt,
+// llms.txt y las vistas previas al compartir. Se puede pisar con la variable SITE_URL en Cloudflare.
+const site = process.env.SITE_URL || 'https://hitoinmobiliaria.com';
 
 export default defineConfig({
   site,

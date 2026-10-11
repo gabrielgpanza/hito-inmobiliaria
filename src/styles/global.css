@@ -349,6 +349,7 @@ a.sr-only:focus {
   align-items: center;
   justify-content: center;
   background: rgba(47, 40, 34, 0.55);
+  pointer-events: none; /* que no tape los toques: deslizar la galería, abrir la foto */
 }
 .sello-vendido span {
   border: 2px solid var(--blanco);

@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import sitio from '../data/sitio.json';
+import { sitio } from './sitio';
 
 export type Propiedad = CollectionEntry<'propiedades'>;
 
@@ -20,11 +20,29 @@ export function urlPropiedad(p: Propiedad): string {
 
 const miles = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
 
+export type Moneda = 'USD' | 'ARS';
+
+export function formatoMonto(moneda: Moneda, n: number): string {
+  return `${moneda === 'USD' ? 'USD' : '$'} ${miles.format(n)}`;
+}
+
 export function formatoPrecio(p: Propiedad): string {
   if (p.data.estado === 'vendido') return 'Vendido';
   if (!p.data.precio) return 'Consultar';
-  const signo = p.data.moneda === 'USD' ? 'USD' : '$';
-  return `${signo} ${miles.format(p.data.precio)}`;
+  return formatoMonto(p.data.moneda, p.data.precio);
+}
+
+/**
+ * Topes del filtro "Precio hasta". El valor lleva la moneda ("usd-50000", "ars-50000000")
+ * para que una propiedad en pesos no quede afuera ni se compare con dólares.
+ */
+const topes: Record<Moneda, number[]> = {
+  USD: [25_000, 50_000, 100_000, 200_000],
+  ARS: [25_000_000, 50_000_000, 100_000_000, 200_000_000],
+};
+
+export function opcionesPrecio(moneda: Moneda) {
+  return topes[moneda].map((n) => ({ valor: `${moneda.toLowerCase()}-${n}`, texto: formatoMonto(moneda, n) }));
 }
 
 export function m2(n: number | undefined): string | undefined {

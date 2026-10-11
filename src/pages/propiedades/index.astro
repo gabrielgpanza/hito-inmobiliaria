@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import TarjetaPropiedad from '../../components/TarjetaPropiedad.astro';
+import OpcionesPrecio from '../../components/OpcionesPrecio.astro';
 import { linkWhatsApp, todasLasPropiedades } from '../../lib/propiedades';
 
 const propiedades = await todasLasPropiedades();
@@ -11,6 +12,7 @@ const tipos = unicos(propiedades.map((p) => p.data.tipo));
 const operaciones = unicos(propiedades.map((p) => p.data.operacion));
 const hayDormitorios = propiedades.some((p) => p.data.dormitorios);
 const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
+const hayPesos = propiedades.some((p) => p.data.moneda === 'ARS' && p.data.precio);
 ---
 
 <Base
@@ -82,11 +84,7 @@ const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
         <label class="campo">
           Precio hasta
           <select name="precio">
-            <option value="">Sin límite</option>
-            <option value="25000">USD 25.000</option>
-            <option value="50000">USD 50.000</option>
-            <option value="100000">USD 100.000</option>
-            <option value="200000">USD 200.000</option>
+            <OpcionesPrecio conPesos={hayPesos} />
           </select>
         </label>
 
@@ -125,7 +123,8 @@ const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
               data-tipo={p.data.tipo}
               data-op={p.data.operacion}
               data-estado={p.data.estado}
-              data-precio={p.data.moneda === 'USD' ? (p.data.precio ?? 0) : 0}
+              data-precio={p.data.precio ?? 0}
+              data-moneda={p.data.moneda}
               data-dorm={p.data.dormitorios ?? 0}
               data-superficie={p.data.superficie_total ?? p.data.superficie_cubierta ?? 0}
               data-orden={i}
@@ -352,11 +351,17 @@ const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
     if (!encontrado && botones[0]) botones[0].setAttribute('aria-pressed', 'true');
   }
 
+  // "usd-50000" → { moneda: 'USD', tope: 50000 }. Un número solo (links viejos) se toma en dólares.
+  function leerPrecio(valor: string) {
+    const [moneda, tope] = valor.includes('-') ? valor.split('-') : ['usd', valor];
+    return { moneda: moneda.toUpperCase(), tope: Number(tope) || 0 };
+  }
+
   function leerFiltros() {
     const datos = new FormData(form);
     return {
       q: normalizar(String(datos.get('q') ?? '')),
-      precio: Number(datos.get('precio') || 0),
+      precio: String(datos.get('precio') ?? ''),
       vendidas: form.querySelector<HTMLInputElement>('[name="vendidas"]')?.checked ?? true,
       localidad: valorGrupo('localidad'),
       tipo: valorGrupo('tipo'),
@@ -367,6 +372,7 @@ const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
 
   function aplicar() {
     const f = leerFiltros();
+    const tope = leerPrecio(f.precio);
     let visibles = 0;
     for (const li of items) {
       const d = li.dataset;
@@ -376,7 +382,7 @@ const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
         (!f.tipo || d.tipo === f.tipo) &&
         (!f.op || d.op === f.op) &&
         (!f.dorm || Number(d.dorm) >= f.dorm) &&
-        (!f.precio || (precio > 0 && precio <= f.precio)) &&
+        (!tope.tope || (d.moneda === tope.moneda && precio > 0 && precio <= tope.tope)) &&
         (f.vendidas || d.estado !== 'vendido') &&
         (!f.q || f.q.split(/\s+/).every((palabra) => d.texto!.includes(palabra)));
       li.hidden = !ok;
@@ -390,10 +396,13 @@ const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
   function ordenar() {
     const criterio = orden.value;
     const num = (li: HTMLLIElement, k: string) => Number(li.dataset[k]);
-    const sinPrecioAlFinal = (li: HTMLLIElement) => (num(li, 'precio') > 0 ? num(li, 'precio') : Infinity);
+    // Dólares y pesos no se pueden comparar: primero van las de dólares, después las de pesos y al final las sin precio.
+    const grupo = (li: HTMLLIElement) => (num(li, 'precio') > 0 ? (li.dataset.moneda === 'USD' ? 0 : 1) : 2);
+    const porPrecio = (a: HTMLLIElement, b: HTMLLIElement, sentido: number) =>
+      grupo(a) - grupo(b) || sentido * (num(a, 'precio') - num(b, 'precio'));
     const ordenados = [...items].sort((a, b) => {
-      if (criterio === 'precio-asc') return sinPrecioAlFinal(a) - sinPrecioAlFinal(b);
-      if (criterio === 'precio-desc') return num(b, 'precio') - num(a, 'precio');
+      if (criterio === 'precio-asc') return porPrecio(a, b, 1);
+      if (criterio === 'precio-desc') return porPrecio(a, b, -1);
       if (criterio === 'superficie') return num(b, 'superficie') - num(a, 'superficie');
       return num(a, 'orden') - num(b, 'orden');
     });
@@ -417,7 +426,8 @@ const hayVendidas = propiedades.some((p) => p.data.estado === 'vendido');
     const p = new URLSearchParams(location.search);
     for (const g of grupos) marcarGrupo(g.dataset.grupo!, p.get(g.dataset.grupo!) ?? '');
     (form.elements.namedItem('q') as HTMLInputElement).value = p.get('q') ?? '';
-    (form.elements.namedItem('precio') as HTMLSelectElement).value = p.get('precio') ?? '';
+    const precio = p.get('precio') ?? '';
+    (form.elements.namedItem('precio') as HTMLSelectElement).value = /^\d+$/.test(precio) ? `usd-${precio}` : precio;
     const vendidas = form.querySelector<HTMLInputElement>('[name="vendidas"]');
     if (vendidas) vendidas.checked = p.get('vendidas') !== '0';
   }

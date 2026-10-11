@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import logo from '../assets/brand/logo-blanco.png';
-import sitio from '../data/sitio.json';
+import { sitio } from '../lib/sitio';
 import { linkWhatsApp } from '../lib/propiedades';
 ---
 
@@ -16,6 +16,7 @@ import { linkWhatsApp } from '../lib/propiedades';
       <div>
         <span class="pie__titulo">Explorar</span>
         <a href="/propiedades/">Propiedades</a>
+        <a href="/#nosotros">Quiénes somos</a>
         <a href="/#localidades">Localidades</a>
         <a href="/#construccion">Construcción a medida</a>
       </div>

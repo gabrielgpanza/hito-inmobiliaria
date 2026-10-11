@@ -11,6 +11,7 @@ const { actual } = Astro.props;
 
 const links = [
   { href: '/propiedades/', texto: 'Propiedades', id: 'propiedades' },
+  { href: '/#nosotros', texto: 'Quiénes somos' },
   { href: '/#localidades', texto: 'Localidades' },
   { href: '/#construccion', texto: 'Construcción' },
   { href: '/#contacto', texto: 'Contacto' },
@@ -128,7 +129,7 @@ const links = [
   .encabezado__desplegable .boton {
     margin-top: 10px;
   }
-  @media (max-width: 860px) {
+  @media (max-width: 960px) {
     .encabezado__nav {
       display: none;
     }

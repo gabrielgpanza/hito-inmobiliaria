@@ -4,10 +4,12 @@ import Base from '../layouts/Base.astro';
 import TarjetaPropiedad from '../components/TarjetaPropiedad.astro';
 import Paisaje from '../components/Paisaje.astro';
 import IconoWhatsApp from '../components/IconoWhatsApp.astro';
+import OpcionesPrecio from '../components/OpcionesPrecio.astro';
 import logoBlanco from '../assets/brand/logo-blanco.png';
-import sitio from '../data/sitio.json';
 import { buscarImagen } from '../lib/imagenes';
-import { linkWhatsApp, semilla, todasLasPropiedades } from '../lib/propiedades';
+import { linkWhatsApp, parrafos, semilla, todasLasPropiedades } from '../lib/propiedades';
+import { datosInmobiliaria, datosSitioWeb } from '../lib/seo';
+import { sitio } from '../lib/sitio';
 
 const propiedades = await todasLasPropiedades();
 const activas = propiedades.filter((p) => p.data.estado !== 'vendido');
@@ -27,13 +29,17 @@ const localidades = [...new Set(propiedades.map((p) => p.data.localidad))]
   })
   .sort((a, b) => b.cantidad - a.cantidad);
 
-const tipos = [...new Set(propiedades.map((p) => p.data.tipo))].sort();
+const tipos = [...new Set(propiedades.map((p) => p.data.tipo))].sort((a, b) => a.localeCompare(b, 'es'));
+const hayPesos = propiedades.some((p) => p.data.moneda === 'ARS' && p.data.precio);
 
 const heroFoto = buscarImagen(sitio.hero_imagen);
 const construccionFoto = buscarImagen(sitio.construccion_imagen);
+const nosotros = parrafos(sitio.nosotros_texto);
+
+const datosEstructurados = [datosSitioWeb(Astro.site!), await datosInmobiliaria(Astro.site!, heroFoto)];
 ---
 
-<Base actual="inicio">
+<Base actual="inicio" datosEstructurados={datosEstructurados}>
   <section class="contenedor hero">
     <div class="hero__texto">
       <span class="volanta">{sitio.hero_volanta}</span>
@@ -76,11 +82,7 @@ const construccionFoto = buscarImagen(sitio.construccion_imagen);
       <label class="campo">
         Precio hasta
         <select name="precio">
-          <option value="">Sin límite</option>
-          <option value="25000">USD 25.000</option>
-          <option value="50000">USD 50.000</option>
-          <option value="100000">USD 100.000</option>
-          <option value="200000">USD 200.000</option>
+          <OpcionesPrecio conPesos={hayPesos} />
         </select>
       </label>
       <button class="boton boton--tierra" type="submit">
@@ -109,31 +111,20 @@ const construccionFoto = buscarImagen(sitio.construccion_imagen);
     )
   }
 
-  <section class="seccion contenedor" id="como">
-    <div class="cabecera-seccion">
-      <div>
-        <span class="volanta">Cómo trabajamos</span>
-        <h2 class="titulo-seccion">De la vidriera a tu terreno, en tres pasos</h2>
-      </div>
-    </div>
-    <ol class="pasos">
-      <li>
-        <span class="pasos__numero">01</span>
-        <h3>Elegí</h3>
-        <p>Filtrá por localidad, tipo y precio. Cada ficha tiene fotos, medidas y ubicación.</p>
-      </li>
-      <li>
-        <span class="pasos__numero">02</span>
-        <h3>Consultá por WhatsApp</h3>
-        <p>Marcá qué te interesa y el mensaje sale armado con la propiedad. Sin formularios eternos.</p>
-      </li>
-      <li>
-        <span class="pasos__numero">03</span>
-        <h3>Visitá y decidí</h3>
-        <p>Coordinamos la visita y te acompañamos con la documentación y las formas de pago.</p>
-      </li>
-    </ol>
-  </section>
+  {
+    nosotros.length > 0 && (
+      <section class="seccion contenedor nosotros" id="nosotros">
+        <div class="nosotros__cabecera">
+          <span class="volanta">Quiénes somos</span>
+          <h2 class="titulo-seccion">{sitio.nosotros_titulo}</h2>
+        </div>
+        <div class="nosotros__texto">
+          {nosotros.map((t) => <p>{t}</p>)}
+          {sitio.nosotros_firma && <p class="nosotros__firma">{sitio.nosotros_firma}</p>}
+        </div>
+      </section>
+    )
+  }
 
   <section class="contenedor construccion-seccion" id="construccion">
     <div class="construccion">
@@ -278,34 +269,35 @@ const construccionFoto = buscarImagen(sitio.construccion_imagen);
     font-weight: 600;
   }
 
-  .pasos {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 22px;
+  .nosotros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 64px;
   }
-  .pasos li {
-    background: var(--arena);
-    border-radius: var(--radio);
-    padding: 28px;
+  .nosotros__cabecera {
+    flex: 1 1 320px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
-  .pasos__numero {
-    font-size: 2.6rem;
+  .nosotros__texto {
+    flex: 1.5 1 440px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .nosotros__texto p {
+    font-size: 1.12rem;
+    line-height: 1.65;
+    color: var(--texto);
+    max-width: 40em;
+  }
+  .nosotros__texto .nosotros__firma {
+    margin-top: 8px;
+    padding-left: 16px;
+    border-left: 3px solid var(--piedra);
     font-weight: 700;
-    color: var(--piedra);
-    line-height: 1;
-  }
-  .pasos h3 {
-    font-size: 1.35rem;
-  }
-  .pasos p {
-    color: var(--tierra);
-    font-size: 1.05rem;
+    color: var(--carbon);
   }
 
   .construccion-seccion {

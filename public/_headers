@@ -6,3 +6,11 @@
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Las direcciones de Cloudflare (*.pages.dev) son copias del sitio: que los buscadores
+# solo muestren el dominio oficial, https://hitoinmobiliaria.com
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
