@@ -14,5 +14,7 @@ medidas: 12,50 X 20,25
 servicios:
   - Luz
 escritura: Preventa de Loteo, próximo a escriturar.
+fotos:
+  - /src/assets/uploads/WhatsApp Image 2026-10-11 at 7.29.14 PM.jpeg
 fecha: 2026-09-20
 ---
