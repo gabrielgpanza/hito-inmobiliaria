@@ -1,24 +1,18 @@
 ---
-titulo: Casa de 3 dormitorios con patio (ejemplo)
+titulo: PREVENTA LOTEO VILLA TALLERES
 estado: disponible
+destacada: true
 operacion: Venta
-tipo: Casa
+tipo: Lote
 localidad: Huinca Renancó
-ubicacion: Centro
-precio: 85000
+ubicacion: TALLERES
+precio: 10000
 moneda: USD
-superficie_total: 450
-superficie_cubierta: 140
-dormitorios: 3
-banos: 2
+financiacion: "24"
+superficie_total: 253
+medidas: 12,50 X 20,25
 servicios:
   - Luz
-  - Agua
-  - Gas natural
-escritura: Escriturada
-descripcion: |-
-  Propiedad de ejemplo. Reemplazala por una real desde el panel de carga.
-fotos: []
-destacada: true
+escritura: Preventa de Loteo, próximo a escriturar.
 fecha: 2026-09-20
 ---
