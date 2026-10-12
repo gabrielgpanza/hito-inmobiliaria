@@ -3,6 +3,16 @@ import { Image } from 'astro:assets';
 import logo from '../assets/brand/logo-blanco.png';
 import { sitio } from '../lib/sitio';
 import { linkWhatsApp } from '../lib/propiedades';
+
+// Un renglón por dato; lo que va antes de «:» se muestra como etiqueta (sin cortar horas como 09:30).
+const horarios = sitio.horario
+  .split('\n')
+  .map((l) => l.trim())
+  .filter(Boolean)
+  .map((l) => {
+    const m = l.match(/^([^:]*\D):\s*(.+)$/);
+    return m ? { etiqueta: m[1], valor: m[2] } : { valor: l };
+  });
 ---
 
 <footer class="pie">
@@ -31,8 +41,24 @@ import { linkWhatsApp } from '../lib/propiedades';
           )
         }
         {sitio.email && <a href={`mailto:${sitio.email}`}>{sitio.email}</a>}
-        {sitio.horario && <span>{sitio.horario}</span>}
       </div>
+      {
+        horarios.length > 0 && (
+          <div class="pie__horarios">
+            <span class="pie__titulo">Horarios de atención</span>
+            {horarios.map((h) =>
+              h.etiqueta ? (
+                <span>
+                  <span class="pie__etiqueta">{h.etiqueta}</span>
+                  {h.valor}
+                </span>
+              ) : (
+                <span class="pie__dias">{h.valor}</span>
+              ),
+            )}
+          </div>
+        )
+      }
     </div>
   </div>
   <div class="contenedor pie__legal">
@@ -77,6 +103,18 @@ import { linkWhatsApp } from '../lib/propiedades';
   .pie__titulo {
     font-weight: 700;
     color: var(--blanco);
+  }
+  .pie__columnas .pie__horarios {
+    max-width: 260px;
+  }
+  .pie__dias {
+    font-weight: 600;
+    color: var(--blanco);
+  }
+  .pie__etiqueta {
+    display: block;
+    font-size: 0.82rem;
+    color: #a3968a;
   }
   .pie a {
     color: #cfc4b6;

@@ -42,7 +42,7 @@ export const GET: APIRoute = async ({ site }) => {
     ...[
       `- WhatsApp: +${sitio.whatsapp} (${linkWhatsApp()})`,
       `- Dirección: ${sitio.direccion}, ${sitio.ciudad}`,
-      sitio.horario && `- Horario: ${sitio.horario}`,
+      sitio.horario && `- Horario: ${sitio.horario.split('\n').map((l) => l.trim()).filter(Boolean).join('; ')}`,
       sitio.instagram && `- Instagram: https://www.instagram.com/${sitio.instagram}/`,
       sitio.email && `- Email: ${sitio.email}`,
     ].filter(Boolean),

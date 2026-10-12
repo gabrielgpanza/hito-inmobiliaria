@@ -50,6 +50,7 @@ Paleta: piedra `#98846C` (marca), piedra oscura `#806D59` (fondos con texto blan
 - **Galería de la ficha**: las fotos verticales (alto > ancho) se muestran enteras (`object-fit: contain`, clase `vertical`); las horizontales llenan el recuadro. Tocar una foto o el botón "Ver las N fotos" abre el visor a pantalla completa: muestra todo entero, flechas, teclado (← →, Esc), deslizar en el celular, y el botón "atrás" del celular lo cierra (usa `history.pushState`).
 - **Filtro de precio**: el valor lleva la moneda (`usd-50000`, `ars-50000000`); un número solo (links viejos) se toma como dólares. Los topes en pesos aparecen solo si hay alguna propiedad en pesos. Al ordenar por precio: primero dólares, después pesos y al final "Consultar".
 - **Quiénes somos**: textos en `sitio.json` (`nosotros_titulo`, `nosotros_texto`, `nosotros_firma`), editables desde el panel. Si `nosotros_texto` queda vacío, la sección no se muestra.
+- **Horarios (pie)**: `horario` en `sitio.json` es texto de varios renglones. Cada renglón es un dato; si tiene «Etiqueta: valor», la etiqueta va chiquita arriba (no corta horas como 09:30). Sin «:» se muestra resaltado (ej: "Lunes a viernes").
 - **SEO / agentes**: canonical y og con el dominio oficial; `<meta name="robots">` (la 404 va con noindex); sitemap con @astrojs/sitemap; `robots.txt` y `llms.txt` generados; `X-Robots-Tag: noindex` en `*.pages.dev`.
 
 ## Cosas que muerden
