@@ -151,7 +151,8 @@ content:
         type: string
       - name: horario
         label: Horario de atención
-        type: string
+        type: text
+        description: "Un dato por renglón. Ej: Horario de oficina: 09:30 a 14:30 hs"
       - name: hero_volanta
         label: Portada · texto chico de arriba
         type: string
