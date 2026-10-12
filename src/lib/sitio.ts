@@ -16,9 +16,10 @@ const porDefecto = {
   hero_texto:
     'Mirá los terrenos y propiedades disponibles, filtrá por localidad y escribinos por WhatsApp con lo que te interesa.',
   hero_imagen: '',
-  nosotros_titulo: 'De la vidriera a tu terreno.',
+  nosotros_titulo: 'Una empresa familiar con más de 40 años en la zona.',
   nosotros_texto: '',
   nosotros_firma: '',
+  construccion_encabezado: 'De la vidriera a tu terreno, contactanos.',
   construccion_titulo: 'Del terreno a la casa, con el mismo equipo.',
   construccion_texto: 'Gestionamos tu terreno y la construcción de tu casa.',
   construccion_imagen: '',

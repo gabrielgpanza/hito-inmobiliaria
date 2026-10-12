@@ -32,7 +32,7 @@ src/lib/seo.ts                      JSON-LD schema.org: WebSite + RealEstateAgen
 src/components/OpcionesPrecio.astro opciones de "Precio hasta" (portada y catálogo)
 src/components/Paisaje.astro        ilustración de sierras con la piedra "hito" cuando no hay foto
 src/layouts/Base.astro              head común: canonical, og, robots (prop indexar), JSON-LD (prop datosEstructurados)
-src/pages/index.astro               portada: hero, buscador (GET a /propiedades/), destacadas, quiénes somos (#nosotros), construcción, localidades, CTA
+src/pages/index.astro               portada: hero, buscador (GET a /propiedades/), destacadas, construcción (#construccion, con encabezado "Cómo trabajamos"), quiénes somos (#nosotros), localidades, CTA
 src/pages/propiedades/index.astro   catálogo: filtros por chips/selects sincronizados con la URL (?localidad=&tipo=&op=&dorm=&precio=&q=&vendidas=0) y orden
 src/pages/propiedades/[id].astro    ficha: galería con scroll-snap + visor a pantalla completa (<dialog>), datos, video, mapa, consulta por WhatsApp
 src/pages/robots.txt.ts             robots.txt generado (permite todo y nombra a los bots de IA; apunta al sitemap y a llms.txt)
@@ -65,13 +65,12 @@ Paleta: piedra `#98846C` (marca), piedra oscura `#806D59` (fondos con texto blan
 
 ## Estado (11/10/2026)
 
-Funcionando en Cloudflare con dominio propio y el panel en uso. Cargado: WhatsApp `5492302312807`, foto del local en la portada, foto de construcción con logo de Domus, sección Quiénes somos, y dos propiedades reales: "PREVENTA LOTEO VILLA TALLERES" (`/propiedades/preventa-loteo-villa-talleres/`, antes `ejemplo-casa-tres-dormitorios`, con 301) y "CASA DE BARRIO".
+Funcionando en Cloudflare con dominio propio y el panel en uso. Cargado: WhatsApp `5492302312807` (se muestra "2302 312807"), foto del local en la portada, foto de construcción con logo de Domus, sección Quiénes somos, y dos propiedades reales: "PREVENTA LOTEO VILLA TALLERES" (`/propiedades/preventa-loteo-villa-talleres/`, antes `ejemplo-casa-tres-dormitorios`, con 301) y "CASA DE BARRIO".
 
 ## Pendientes
 
 1. Que el cliente complete desde el panel:
    - Financiación del loteo: dice "24" → "Hasta 24 cuotas".
-   - "WhatsApp como se muestra": dice "[completar número]".
    - Confirmar el teléfono: el cartel del local (foto de portada) dice 2302 596714 y el del lote dice 2302 312807, que es el WhatsApp configurado.
    - Loteo: aclarar que tiene lotes de 253/300/600/800 m² (¿precio "desde"?), y sumarle descripción y link de Google Maps.
    - Casa de barrio: le faltan superficie (total y cubierta) y link de Google Maps.

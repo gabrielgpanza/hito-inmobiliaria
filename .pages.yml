@@ -175,8 +175,11 @@ content:
         label: Quiénes somos · firma
         type: string
         description: "Ej: Organización PG – Panza Girardi"
+      - name: construccion_encabezado
+        label: Construcción · título de arriba (Cómo trabajamos)
+        type: string
       - name: construccion_titulo
-        label: Construcción · título
+        label: Construcción · título de la tarjeta
         type: string
       - name: construccion_texto
         label: Construcción · texto

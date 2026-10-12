@@ -111,22 +111,13 @@ const datosEstructurados = [datosSitioWeb(Astro.site!), await datosInmobiliaria(
     )
   }
 
-  {
-    nosotros.length > 0 && (
-      <section class="seccion contenedor nosotros" id="nosotros">
-        <div class="nosotros__cabecera">
-          <span class="volanta">Quiénes somos</span>
-          <h2 class="titulo-seccion">{sitio.nosotros_titulo}</h2>
-        </div>
-        <div class="nosotros__texto">
-          {nosotros.map((t) => <p>{t}</p>)}
-          {sitio.nosotros_firma && <p class="nosotros__firma">{sitio.nosotros_firma}</p>}
-        </div>
-      </section>
-    )
-  }
-
-  <section class="contenedor construccion-seccion" id="construccion">
+  <section class="seccion contenedor construccion-seccion" id="construccion">
+    <div class="cabecera-seccion">
+      <div>
+        <span class="volanta">Cómo trabajamos</span>
+        <h2 class="titulo-seccion">{sitio.construccion_encabezado}</h2>
+      </div>
+    </div>
     <div class="construccion">
       <div class="construccion__imagen">
         {
@@ -155,6 +146,21 @@ const datosEstructurados = [datosSitioWeb(Astro.site!), await datosInmobiliaria(
       </div>
     </div>
   </section>
+
+  {
+    nosotros.length > 0 && (
+      <section class="seccion contenedor nosotros" id="nosotros">
+        <div class="nosotros__cabecera">
+          <span class="volanta">Quiénes somos</span>
+          <h2 class="titulo-seccion">{sitio.nosotros_titulo}</h2>
+        </div>
+        <div class="nosotros__texto">
+          {nosotros.map((t) => <p>{t}</p>)}
+          {sitio.nosotros_firma && <p class="nosotros__firma">{sitio.nosotros_firma}</p>}
+        </div>
+      </section>
+    )
+  }
 
   {
     localidades.length > 0 && (
@@ -270,9 +276,13 @@ const datosEstructurados = [datosSitioWeb(Astro.site!), await datosInmobiliaria(
   }
 
   .nosotros {
+    padding-top: 0;
     display: flex;
     flex-wrap: wrap;
     gap: 24px 64px;
+  }
+  .seccion.nosotros {
+    scroll-margin-top: 40px;
   }
   .nosotros__cabecera {
     flex: 1 1 320px;
@@ -300,9 +310,6 @@ const datosEstructurados = [datosSitioWeb(Astro.site!), await datosInmobiliaria(
     color: var(--carbon);
   }
 
-  .construccion-seccion {
-    padding-bottom: clamp(56px, 8vw, 88px);
-  }
   .construccion {
     display: flex;
     flex-wrap: wrap;
