@@ -1,7 +1,7 @@
 ---
 titulo: CASA DE BARRIO
 estado: disponible
-destacada: false
+destacada: true
 operacion: Venta
 tipo: Casa
 localidad: Huinca Renancó
