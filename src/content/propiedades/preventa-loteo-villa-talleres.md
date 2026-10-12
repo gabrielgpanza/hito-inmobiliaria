@@ -17,5 +17,6 @@ escritura: Preventa de Loteo, próximo a escriturar.
 fotos:
   - /src/assets/uploads/WhatsApp Image 2026-10-11 at 8.17.46 PM.jpeg
   - /src/assets/uploads/WhatsApp Image 2026-10-11 at 7.29.14 PM.jpeg
+  - /src/assets/uploads/GOOGLE MAP.jpeg
 fecha: 2026-09-20
 ---
