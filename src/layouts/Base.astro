@@ -3,8 +3,8 @@ import '../styles/global.css';
 import Encabezado from '../components/Encabezado.astro';
 import Pie from '../components/Pie.astro';
 import IconoWhatsApp from '../components/IconoWhatsApp.astro';
-import sitio from '../data/sitio.json';
 import { linkWhatsApp } from '../lib/propiedades';
+import { sitio, ubicacionSitio } from '../lib/sitio';
 
 interface Props {
   titulo?: string;
@@ -12,19 +12,29 @@ interface Props {
   imagen?: string;
   actual?: 'inicio' | 'propiedades';
   mensajeWhatsApp?: string;
+  /** false = que los buscadores no la muestren (ej: la página de error). */
+  indexar?: boolean;
+  /** Datos estructurados (schema.org) para buscadores y asistentes de IA. */
+  datosEstructurados?: unknown;
 }
 
 const {
   titulo,
-  descripcion = 'Terrenos, casas y construcción a medida. Mirá las propiedades disponibles y consultanos por WhatsApp.',
+  descripcion = `Terrenos, loteos, casas y construcción a medida en ${sitio.ciudad}. Mirá las propiedades disponibles y consultanos por WhatsApp.`,
   imagen = '/og-hito.jpg',
   actual,
   mensajeWhatsApp,
+  indexar = true,
+  datosEstructurados,
 } = Astro.props;
 
-const tituloCompleto = titulo ? `${titulo} | Hito Inmobiliaria` : 'Hito | Desarrollos Inmobiliarios';
+const tituloCompleto = titulo
+  ? `${titulo} | Hito Inmobiliaria`
+  : `Hito Desarrollos Inmobiliarios | Terrenos y casas en ${ubicacionSitio.localidad}`;
 const canonica = new URL(Astro.url.pathname, Astro.site);
 const imagenAbsoluta = new URL(imagen, Astro.site);
+// "<" escapado para que ningún texto cargado en el panel pueda cerrar el <script>.
+const jsonLd = datosEstructurados ? JSON.stringify(datosEstructurados).replace(/</g, '\\u003c') : undefined;
 ---
 
 <!doctype html>
@@ -34,6 +44,7 @@ const imagenAbsoluta = new URL(imagen, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{tituloCompleto}</title>
     <meta name="description" content={descripcion} />
+    <meta name="robots" content={indexar ? 'index, follow, max-image-preview:large' : 'noindex, follow'} />
     <link rel="canonical" href={canonica} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#98846C" />
@@ -47,6 +58,8 @@ const imagenAbsoluta = new URL(imagen, Astro.site);
     <meta property="og:image" content={imagenAbsoluta} />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="Resumen del sitio para asistentes de IA" />
+    {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
   </head>
   <body>
     <a class="sr-only" href="#contenido">Saltar al contenido</a>

@@ -16,6 +16,7 @@ import {
   todasLasPropiedades,
   type Propiedad,
 } from '../../lib/propiedades';
+import { datosPropiedad } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const propiedades = await todasLasPropiedades();
@@ -71,9 +72,23 @@ const parecidas = todas
 
 const og = fotos[0] ? await getImage({ src: fotos[0], width: 1200, height: 630, format: 'jpg', fit: 'cover' }) : undefined;
 const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.descripcion)[0] ?? ''}`.slice(0, 158);
+
+// Las fotos verticales (planos, frentes altos) se muestran enteras en vez de recortarlas.
+const esVertical = (foto: (typeof fotos)[number]) => foto.height > foto.width;
+
+const imagenesSeo = await Promise.all(
+  fotos.map(async (foto) => new URL((await getImage({ src: foto, width: Math.min(1400, foto.width), format: 'jpg' })).src, Astro.site).href),
+);
+const datosEstructurados = datosPropiedad(p, Astro.site!, imagenesSeo);
 ---
 
-<Base titulo={`${d.titulo} · ${d.localidad}`} descripcion={descripcionMeta} imagen={og?.src} mensajeWhatsApp={mensajeBase}>
+<Base
+  titulo={`${d.titulo} · ${d.localidad}`}
+  descripcion={descripcionMeta}
+  imagen={og?.src}
+  mensajeWhatsApp={mensajeBase}
+  datosEstructurados={datosEstructurados}
+>
   <div class="contenedor ficha">
     <nav class="migas" aria-label="Ruta">
       <a href="/propiedades/">Propiedades</a>
@@ -90,14 +105,17 @@ const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.de
             fotos.length > 0 ? (
               fotos.map((foto, i) => (
                 <li>
-                  <Image
-                    src={foto}
-                    alt={`${d.titulo}, foto ${i + 1} de ${fotos.length}`}
-                    widths={[640, 1000, 1400]}
-                    sizes="(max-width: 1280px) 100vw, 1200px"
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                    fetchpriority={i === 0 ? 'high' : undefined}
-                  />
+                  <button type="button" class="galeria__abrir" data-abrir={i} aria-label={`Ampliar foto ${i + 1} de ${fotos.length}`}>
+                    <Image
+                      src={foto}
+                      alt={`${d.titulo}, foto ${i + 1} de ${fotos.length}`}
+                      widths={[640, 1000, 1400]}
+                      sizes="(max-width: 1280px) 100vw, 1200px"
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      fetchpriority={i === 0 ? 'high' : undefined}
+                      class={esVertical(foto) ? 'vertical' : undefined}
+                    />
+                  </button>
                 </li>
               ))
             ) : (
@@ -108,6 +126,14 @@ const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.de
           }
         </ul>
         {vendida && <div class="sello-vendido"><span>VENDIDO</span></div>}
+        {
+          fotos.length > 0 && (
+            <button type="button" class="galeria__ampliar" data-ampliar>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+              {fotos.length > 1 ? `Ver las ${fotos.length} fotos` : 'Ver foto'}
+            </button>
+          )
+        }
         {
           fotos.length > 1 && (
             <>
@@ -134,6 +160,42 @@ const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.de
         )
       }
     </section>
+
+    {
+      fotos.length > 0 && (
+        <dialog class="visor" id="visor" aria-label={`Fotos de ${d.titulo}`}>
+          <div class="visor__barra">
+            <span id="visor-contador">{fotos.length > 1 ? `1 / ${fotos.length}` : ''}</span>
+            <button type="button" class="visor__cerrar" data-cerrar aria-label="Cerrar fotos">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+          </div>
+          <ul class="visor__pista" id="visor-pista">
+            {fotos.map((foto, i) => (
+              <li>
+                <Image
+                  src={foto}
+                  alt={`${d.titulo}, foto ${i + 1} de ${fotos.length}`}
+                  widths={[800, 1400, 2000]}
+                  sizes="100vw"
+                  loading="lazy"
+                />
+              </li>
+            ))}
+          </ul>
+          {fotos.length > 1 && (
+            <>
+              <button class="visor__flecha visor__flecha--izq" type="button" data-visor-mover="-1" aria-label="Foto anterior">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
+              </button>
+              <button class="visor__flecha visor__flecha--der" type="button" data-visor-mover="1" aria-label="Foto siguiente">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+              </button>
+            </>
+          )}
+        </dialog>
+      )
+    }
 
     <div class="ficha__cuerpo">
       <div class="ficha__datos">
@@ -307,6 +369,38 @@ const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.de
     height: 100%;
     object-fit: cover;
   }
+  .galeria__pista :global(img.vertical) {
+    object-fit: contain;
+  }
+  .galeria__abrir {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+  .galeria__ampliar {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(47, 40, 34, 0.78);
+    color: var(--blanco);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .galeria__ampliar:hover {
+    background: var(--carbon);
+  }
   .galeria__flecha {
     position: absolute;
     top: 50%;
@@ -363,6 +457,104 @@ const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.de
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* Visor de fotos a pantalla completa */
+  .visor {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #17130f;
+    color: var(--blanco);
+    overflow: hidden;
+  }
+  .visor[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  .visor::backdrop {
+    background: #17130f;
+  }
+  :global(html:has(.visor[open])) {
+    overflow: hidden;
+  }
+  .visor__barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px 10px 20px;
+    font-size: 0.95rem;
+    color: #cfc4b6;
+  }
+  .visor__cerrar {
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--blanco);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .visor__cerrar:hover {
+    background: rgba(255, 255, 255, 0.24);
+  }
+  .visor__pista {
+    flex: 1;
+    min-height: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior: contain;
+  }
+  .visor__pista::-webkit-scrollbar {
+    display: none;
+  }
+  .visor__pista li {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    padding: 0 12px 16px;
+  }
+  .visor__pista :global(img) {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+  }
+  .visor__flecha {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--blanco);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .visor__flecha:hover {
+    background: rgba(255, 255, 255, 0.28);
+  }
+  .visor__flecha--izq {
+    left: 20px;
+  }
+  .visor__flecha--der {
+    right: 20px;
   }
 
   .ficha__cuerpo {
@@ -585,8 +777,12 @@ const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.de
     .galeria__pista {
       aspect-ratio: 4 / 3;
     }
-    .galeria__flecha {
+    .galeria__flecha,
+    .visor__flecha {
       display: none;
+    }
+    .visor__pista li {
+      padding: 0 0 12px;
     }
     .consulta {
       position: static;
@@ -595,28 +791,86 @@ const descripcionMeta = `${d.tipo} en ${d.localidad}. ${precio}. ${parrafos(d.de
 </style>
 
 <script>
+  // Carrusel con scroll-snap: cada foto ocupa el ancho entero de la pista.
+  function carrusel(pista: HTMLElement) {
+    const total = pista.children.length;
+    const actual = () => Math.round(pista.scrollLeft / pista.clientWidth);
+    const ir = (i: number, suave = true) =>
+      pista.scrollTo({ left: ((i + total) % total) * pista.clientWidth, behavior: suave ? 'smooth' : 'instant' });
+    return { total, actual, ir };
+  }
+
   // Galería: flechas, miniaturas y contador.
   const pista = document.getElementById('pista');
   if (pista) {
-    const total = pista.children.length;
+    const galeria = carrusel(pista);
     const contador = document.getElementById('contador-fotos');
     const miniaturas = [...document.querySelectorAll<HTMLButtonElement>('[data-ir]')];
-    const actual = () => Math.round(pista.scrollLeft / pista.clientWidth);
-    const ir = (i: number) => pista.scrollTo({ left: ((i + total) % total) * pista.clientWidth, behavior: 'smooth' });
 
     document.querySelectorAll<HTMLButtonElement>('[data-mover]').forEach((b) =>
-      b.addEventListener('click', () => ir(actual() + Number(b.dataset.mover))),
+      b.addEventListener('click', () => galeria.ir(galeria.actual() + Number(b.dataset.mover))),
     );
-    miniaturas.forEach((b) => b.addEventListener('click', () => ir(Number(b.dataset.ir))));
+    miniaturas.forEach((b) => b.addEventListener('click', () => galeria.ir(Number(b.dataset.ir))));
     pista.addEventListener(
       'scroll',
       () => {
-        const i = actual();
-        if (contador) contador.textContent = `${i + 1} / ${total}`;
+        const i = galeria.actual();
+        if (contador) contador.textContent = `${i + 1} / ${galeria.total}`;
         miniaturas.forEach((b, j) => (j === i ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current')));
       },
       { passive: true },
     );
+
+    // Visor a pantalla completa: muestra cada foto entera (vertical u horizontal).
+    const visor = document.getElementById('visor') as HTMLDialogElement | null;
+    const visorPista = document.getElementById('visor-pista');
+    if (visor && visorPista) {
+      const fotos = carrusel(visorPista);
+      const contadorVisor = document.getElementById('visor-contador')!;
+      // Foto que se está viendo. Se guarda al moverse porque, ya cerrado, el visor no tiene ancho para calcularla.
+      let vista = 0;
+      const actualizarVisor = () => {
+        if (!visor.open) return;
+        vista = fotos.actual();
+        if (fotos.total > 1) contadorVisor.textContent = `${vista + 1} / ${fotos.total}`;
+      };
+
+      const abrir = (i: number) => {
+        visor.showModal();
+        fotos.ir(i, false);
+        vista = i;
+        actualizarVisor();
+        // Así el botón "atrás" del celular cierra el visor en vez de salir de la ficha.
+        history.pushState({ visor: true }, '');
+      };
+
+      pista.addEventListener('click', (e) => {
+        const boton = (e.target as HTMLElement).closest<HTMLElement>('[data-abrir]');
+        if (boton) abrir(Number(boton.dataset.abrir));
+      });
+      document.querySelector('[data-ampliar]')?.addEventListener('click', () => abrir(galeria.actual()));
+      visor.querySelector('[data-cerrar]')!.addEventListener('click', () => visor.close());
+      visor.querySelectorAll<HTMLButtonElement>('[data-visor-mover]').forEach((b) =>
+        b.addEventListener('click', () => fotos.ir(fotos.actual() + Number(b.dataset.visorMover))),
+      );
+      visorPista.addEventListener('scroll', actualizarVisor, { passive: true });
+      // Tocar el fondo (fuera de la foto) también cierra.
+      visorPista.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).tagName === 'LI') visor.close();
+      });
+      visor.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        fotos.ir(fotos.actual() + (e.key === 'ArrowRight' ? 1 : -1));
+      });
+      visor.addEventListener('close', () => {
+        galeria.ir(vista, false);
+        if (history.state?.visor) history.back();
+      });
+      window.addEventListener('popstate', () => {
+        if (visor.open) visor.close();
+      });
+    }
   }
 
   // Video de YouTube: se carga recién cuando tocan play (la página queda liviana).

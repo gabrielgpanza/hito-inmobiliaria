@@ -164,8 +164,22 @@ content:
       - name: hero_imagen
         label: Portada · foto
         type: image
+      - name: nosotros_titulo
+        label: Quiénes somos · título
+        type: string
+      - name: nosotros_texto
+        label: Quiénes somos · texto
+        type: text
+        description: "Dejá una línea en blanco para empezar un párrafo nuevo."
+      - name: nosotros_firma
+        label: Quiénes somos · firma
+        type: string
+        description: "Ej: Organización PG – Panza Girardi"
+      - name: construccion_encabezado
+        label: Construcción · título de arriba (Cómo trabajamos)
+        type: string
       - name: construccion_titulo
-        label: Construcción · título
+        label: Construcción · título de la tarjeta
         type: string
       - name: construccion_texto
         label: Construcción · texto

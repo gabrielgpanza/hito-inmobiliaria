@@ -1,0 +1,28 @@
+---
+// Opciones del filtro "Precio hasta" (portada y catálogo).
+// Si hay propiedades en pesos, se suman topes en pesos agrupados aparte.
+import { opcionesPrecio } from '../lib/propiedades';
+
+interface Props {
+  conPesos?: boolean;
+}
+const { conPesos = false } = Astro.props;
+const dolares = opcionesPrecio('USD');
+const pesos = opcionesPrecio('ARS');
+---
+
+<option value="">Sin límite</option>
+{
+  conPesos ? (
+    <>
+      <optgroup label="En dólares">
+        {dolares.map((o) => <option value={o.valor}>{o.texto}</option>)}
+      </optgroup>
+      <optgroup label="En pesos">
+        {pesos.map((o) => <option value={o.valor}>{o.texto}</option>)}
+      </optgroup>
+    </>
+  ) : (
+    dolares.map((o) => <option value={o.valor}>{o.texto}</option>)
+  )
+}
