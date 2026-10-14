@@ -1,19 +1,19 @@
 ---
-titulo: CASA DE BARRIO
+titulo: CASA DE BARRIO CALLE MALTAGLIATTI
 estado: disponible
 destacada: true
 operacion: Venta
 tipo: Casa
 localidad: Huinca Renancó
-ubicacion: "Pasaje Maltagliatti "
+ubicacion: PASAJE MALTAGLIATTI
 precio: 80000
 moneda: USD
 financiacion: Entrega inicial del 50% y financiamos hasta 12 cuotas.
 dormitorios: 3
 banos: 1
-escritura: Todo en condiciones para escriturar.
-descripcion: Casa de barrio con instalación electrica nueva, en buenas
-  condiciones, ya para habitar.
+escritura: LISTO PARA ESCRITURAR.
+descripcion: CASA DE BARRIO EN EXCELENTE ESTADO CON INSTALACIÓN ELÉCTRICA NUEVA,
+  EN CONDICIONES DE SER HABITADA.
 fotos:
   - /src/assets/uploads/WhatsApp Image 2026-10-11 at 20.49.35.jpeg
   - /src/assets/uploads/WhatsApp Image 2026-10-11 at 20.49.36.jpeg
