@@ -12,8 +12,8 @@ financiacion: CONSULTAR EN HITO.
 superficie_total: 300
 medidas: 10 X 30
 escritura: LISTO PARA ESCRITURAR
-descripcion: TERRENO LISTO PARA ESCRITURAR EN CALLE LAPRIDA ENTRE SAN LORENZO Y
-  9 DE JULIO, CONSULTANOS.
+descripcion: EXCELENTE UBICACIÓN EN CALLE LAPRIDA ENTRE SAN LORENZO Y 9 DE
+  JULIO, CONSULTANOS.
 fotos:
   - /src/assets/uploads/WhatsApp Image 2026-10-10 at 12.57.31.jpeg
   - /src/assets/uploads/LAP.jpg
