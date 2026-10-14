@@ -11,7 +11,7 @@ moneda: USD
 financiacion: CONSULTAR EN HITO.
 superficie_total: 300
 medidas: 10 X 30
-escritura: LISTO PARA ESCRITURAR
+escritura: LISTO PARA ESCRITURAR.
 descripcion: EXCELENTE UBICACIÓN EN CALLE LAPRIDA ENTRE SAN LORENZO Y 9 DE
   JULIO, CONSULTANOS.
 fotos:
