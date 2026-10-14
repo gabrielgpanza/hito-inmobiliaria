@@ -9,7 +9,7 @@ ubicacion: 9 DE JULIO
 precio: 25000
 moneda: USD
 financiacion: CONSULTAR EN HITO.
-superficie_total: 401
+superficie_total: 400
 medidas: 10 X 40
 servicios:
   - "LUZ Y CLOACAS "
