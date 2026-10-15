@@ -4,7 +4,7 @@ estado: disponible
 destacada: true
 operacion: Venta
 tipo: Casa
-localidad: Huinca Renancó
+localidad: HUINCA RENANCÓ
 ubicacion: PASAJE MALTAGLIATTI
 precio: 80000
 moneda: USD
