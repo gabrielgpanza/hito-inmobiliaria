@@ -4,7 +4,7 @@ estado: disponible
 destacada: true
 operacion: Venta
 tipo: Lote
-localidad: Huinca Renancó
+localidad: HUINCA RENANCÓ
 ubicacion: TALLERES
 precio: 10000
 moneda: USD
