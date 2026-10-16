@@ -3,11 +3,10 @@
 // y no aparece en buscadores (noindex, fuera del sitemap y X-Robots-Tag en _headers).
 import '../styles/global.css';
 import { Image } from 'astro:assets';
-import IconoWhatsApp from '../components/IconoWhatsApp.astro';
+import IconoEnlace from '../components/IconoEnlace.astro';
 import piedra from '../assets/brand/piedra.png';
 import { enlaces } from '../lib/enlaces';
 import { buscarImagen } from '../lib/imagenes';
-import { linkWhatsApp } from '../lib/propiedades';
 import { sitio } from '../lib/sitio';
 
 const foto = buscarImagen(enlaces.imagen);
@@ -44,35 +43,13 @@ const textoCompartir = `Escaneá el QR o entrá a ${urlPagina}`;
       <h1>{enlaces.titulo}</h1>
       {enlaces.subtitulo && <p class="subtitulo">{enlaces.subtitulo}</p>}
 
-      <nav class="redes" aria-label="Redes y contacto">
-        <a href={linkWhatsApp()} target="_blank" rel="noopener" aria-label="WhatsApp">
-          <IconoWhatsApp size={23} />
-        </a>
-        {
-          sitio.instagram && (
-            <a href={`https://www.instagram.com/${sitio.instagram}/`} target="_blank" rel="noopener" aria-label="Instagram">
-              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" />
-              </svg>
-            </a>
-          )
-        }
-        <a href="/" aria-label="Sitio web">
-          <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M3 12h18" />
-            <path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
-          </svg>
-        </a>
-      </nav>
-
       <div class="botones">
         {
           enlaces.botones.map((b) => (
             <a class="boton" href={b.href} {...(b.externo ? { target: '_blank', rel: 'noopener' } : {})}>
-              {b.texto}
+              <span class="boton__icono">{b.icono && <IconoEnlace nombre={b.icono} />}</span>
+              <span>{b.texto}</span>
+              <span aria-hidden="true" />
             </a>
           ))
         }
@@ -194,42 +171,24 @@ const textoCompartir = `Escaneá el QR o entrá a ${urlPagina}`;
     font-size: 0.9rem;
   }
 
-  .redes {
-    display: flex;
-    gap: 14px;
-    margin-top: 22px;
-  }
-
-  .redes a {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--arena);
-    color: var(--carbon);
-    display: grid;
-    place-items: center;
-    transition: background 0.15s;
-  }
-
-  .redes a:hover {
-    background: var(--linea);
-  }
-
   .botones {
     width: 100%;
     max-width: 560px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin-top: 30px;
+    gap: 12px;
+    margin-top: 28px;
   }
 
+  /* Ícono a la izquierda y texto centrado: la tercera columna vacía equilibra la primera. */
   .boton {
-    display: flex;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 24px;
     align-items: center;
-    justify-content: center;
-    min-height: 60px;
+    gap: 12px;
+    min-height: 58px;
     padding: 10px 22px;
+    text-align: center;
     border-radius: 999px;
     background: var(--carbon);
     color: var(--blanco);
@@ -238,6 +197,11 @@ const textoCompartir = `Escaneá el QR o entrá a ${urlPagina}`;
     text-decoration: none;
     box-shadow: 0 6px 16px rgba(47, 40, 34, 0.15);
     transition: background 0.15s, transform 0.15s;
+  }
+
+  .boton__icono {
+    display: grid;
+    place-items: center;
   }
 
   .boton:hover {

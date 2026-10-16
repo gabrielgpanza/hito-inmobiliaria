@@ -215,10 +215,27 @@ content:
             label: Texto del botón
             type: string
             required: true
+          - name: icono
+            label: Ícono
+            type: select
+            options:
+              values:
+                - value: whatsapp
+                  label: WhatsApp
+                - value: instagram
+                  label: Instagram
+                - value: web
+                  label: Sitio web
+                - value: casa
+                  label: Casa (propiedades)
+                - value: construccion
+                  label: Ladrillos (construcción)
+                - value: salud
+                  label: Escudo (obra social y seguros)
           - name: link
             label: Link
             type: string
-            description: "Página del sitio (ej: /propiedades/) o dirección completa (https://…)."
+            description: "Página del sitio (ej: /propiedades/) o dirección completa (https://…). Vacío con ícono de WhatsApp, Instagram o Sitio web = usa los de «Datos del sitio»."
           - name: mensaje_whatsapp
             label: Mensaje de WhatsApp
             type: string

@@ -35,7 +35,7 @@ src/layouts/Base.astro              head común: canonical, og, robots (prop ind
 src/pages/index.astro               portada: hero, buscador (GET a /propiedades/), destacadas, construcción (#construccion, con encabezado "Cómo trabajamos"), quiénes somos (#nosotros), localidades, CTA
 src/pages/propiedades/index.astro   catálogo: filtros por chips/selects sincronizados con la URL (?localidad=&tipo=&op=&dorm=&precio=&q=&vendidas=0) y orden
 src/pages/propiedades/[id].astro    ficha: galería con scroll-snap + visor a pantalla completa (<dialog>), datos, video, mapa, consulta por WhatsApp
-src/pages/enlaces.astro            página del QR (/enlaces/): redes, botones editables y botón flotante «Compartir QR»; oculta a propósito
+src/pages/enlaces.astro            página del QR (/enlaces/): botones con ícono (redes y servicios), editables, y botón flotante «Compartir QR»; oculta a propósito
 src/data/enlaces.json               textos y botones de /enlaces/ (se leen con valores por defecto desde src/lib/enlaces.ts)
 public/qr/                          QR a https://hitoinmobiliaria.com/enlaces: qr-hito (con diseño) y qr-hito-simple, en png y svg
 src/pages/robots.txt.ts             robots.txt generado (permite todo y nombra a los bots de IA; apunta al sitemap y a llms.txt)
@@ -54,7 +54,7 @@ Paleta: piedra `#98846C` (marca), piedra oscura `#806D59` (fondos con texto blan
 - **Filtro de precio**: el valor lleva la moneda (`usd-50000`, `ars-50000000`); un número solo (links viejos) se toma como dólares. Los topes en pesos aparecen solo si hay alguna propiedad en pesos. Al ordenar por precio: primero dólares, después pesos y al final "Consultar".
 - **Quiénes somos**: textos en `sitio.json` (`nosotros_titulo`, `nosotros_texto`, `nosotros_firma`), editables desde el panel. Si `nosotros_texto` queda vacío, la sección no se muestra.
 - **Horarios (pie)**: `horario` en `sitio.json` es texto de varios renglones. Cada renglón es un dato; si tiene «Etiqueta: valor», la etiqueta va chiquita arriba (no corta horas como 09:30). Sin «:» se muestra resaltado (ej: "Lunes a viernes").
-- **Página del QR (/enlaces/)**: no hay ningún link a ella en el sitio; tiene noindex, está fuera del sitemap y lleva X-Robots-Tag en `_headers`. Se edita desde el panel en «Página del QR» (cada botón: texto + link, o un mensaje de WhatsApp). El botón flotante comparte `/qr/qr-hito.png` con `navigator.share` (la imagen se trae al cargar porque Safari bloquea el compartir si tarda después del toque); sin https o sin soporte, descarga la imagen. Si cambia el dominio hay que regenerar los QR.
+- **Página del QR (/enlaces/)**: no hay ningún link a ella en el sitio; tiene noindex, está fuera del sitemap y lleva X-Robots-Tag en `_headers`. Se edita desde el panel en «Página del QR» (cada botón: texto, ícono y link o mensaje de WhatsApp; con ícono WhatsApp/Instagram/Sitio web y sin link, usa los datos de «Datos del sitio»). El botón flotante comparte `/qr/qr-hito.png` con `navigator.share` (la imagen se trae al cargar porque Safari bloquea el compartir si tarda después del toque); sin https o sin soporte, descarga la imagen. Si cambia el dominio hay que regenerar los QR.
 - **SEO / agentes**: canonical y og con el dominio oficial; `<meta name="robots">` (la 404 va con noindex); sitemap con @astrojs/sitemap; `robots.txt` y `llms.txt` generados; `X-Robots-Tag: noindex` en `*.pages.dev`.
 
 ## Cosas que muerden
