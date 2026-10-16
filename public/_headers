@@ -7,6 +7,13 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Página del QR y sus imágenes: solo se llega escaneando, que no aparezcan en buscadores.
+/enlaces/*
+  X-Robots-Tag: noindex, nofollow
+
+/qr/*
+  X-Robots-Tag: noindex
+
 # Las direcciones de Cloudflare (*.pages.dev) son copias del sitio: que los buscadores
 # solo muestren el dominio oficial, https://hitoinmobiliaria.com
 https://:project.pages.dev/*

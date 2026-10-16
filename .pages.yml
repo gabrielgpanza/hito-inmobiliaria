@@ -188,3 +188,59 @@ content:
       - name: construccion_imagen
         label: Construcción · foto
         type: image
+
+  - name: enlaces
+    label: Página del QR
+    type: file
+    path: src/data/enlaces.json
+    fields:
+      - name: titulo
+        label: Título
+        type: string
+        description: "Vacío = el nombre de «Datos del sitio»."
+      - name: subtitulo
+        label: Texto debajo del título
+        type: string
+        description: "Ej: Huinca Renancó, Córdoba"
+      - name: imagen
+        label: Foto de arriba
+        type: image
+        description: "Vacía = la foto de la portada del sitio."
+      - name: botones
+        label: Botones
+        type: object
+        list: true
+        fields:
+          - name: texto
+            label: Texto del botón
+            type: string
+            required: true
+          - name: icono
+            label: Ícono
+            type: select
+            options:
+              values:
+                - value: whatsapp
+                  label: WhatsApp
+                - value: instagram
+                  label: Instagram
+                - value: web
+                  label: Sitio web
+                - value: casa
+                  label: Casa (propiedades)
+                - value: construccion
+                  label: Ladrillos (construcción)
+                - value: salud
+                  label: Escudo (obra social y seguros)
+          - name: link
+            label: Link
+            type: string
+            description: "Página del sitio (ej: /propiedades/) o dirección completa (https://…). Vacío con ícono de WhatsApp, Instagram o Sitio web = usa los de «Datos del sitio»."
+          - name: mensaje_whatsapp
+            label: Mensaje de WhatsApp
+            type: string
+            description: "Si lo completás, el botón abre WhatsApp con este mensaje (y no usa el link)."
+      - name: firma
+        label: Texto del pie
+        type: string
+        description: "Ej: Organización PG – Panza Girardi"

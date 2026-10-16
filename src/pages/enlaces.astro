@@ -1,0 +1,268 @@
+---
+// Página de enlaces que abre el QR. A propósito no hay ningún link a ella en el sitio
+// y no aparece en buscadores (noindex, fuera del sitemap y X-Robots-Tag en _headers).
+import '../styles/global.css';
+import { Image } from 'astro:assets';
+import IconoEnlace from '../components/IconoEnlace.astro';
+import piedra from '../assets/brand/piedra.png';
+import { enlaces } from '../lib/enlaces';
+import { buscarImagen } from '../lib/imagenes';
+import { sitio } from '../lib/sitio';
+
+const foto = buscarImagen(enlaces.imagen);
+const urlPagina = new URL('/enlaces', Astro.site).href;
+const textoCompartir = `Escaneá el QR o entrá a ${urlPagina}`;
+---
+
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{enlaces.titulo}</title>
+    <meta name="description" content={`Contacto y redes de ${sitio.nombre}.`} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#F7F3EE" />
+  </head>
+  <body>
+    <main class="enlaces">
+      <div class="portada">
+        {
+          foto ? (
+            <Image src={foto} alt="" widths={[400, 800, 1200]} sizes="(max-width: 800px) 100vw, 760px" loading="eager" fetchpriority="high" class="portada__foto" />
+          ) : (
+            <div class="portada__foto portada__foto--vacia" />
+          )
+        }
+        <div class="avatar">
+          <Image src={piedra} alt="" width={64} densities={[1, 2, 3]} />
+        </div>
+      </div>
+
+      <h1>{enlaces.titulo}</h1>
+      {enlaces.subtitulo && <p class="subtitulo">{enlaces.subtitulo}</p>}
+
+      <div class="botones">
+        {
+          enlaces.botones.map((b) => (
+            <a class="boton" href={b.href} {...(b.externo ? { target: '_blank', rel: 'noopener' } : {})}>
+              <span class="boton__icono">{b.icono && <IconoEnlace nombre={b.icono} />}</span>
+              <span>{b.texto}</span>
+              <span aria-hidden="true" />
+            </a>
+          ))
+        }
+      </div>
+
+      {enlaces.firma && <p class="firma">{enlaces.firma}</p>}
+    </main>
+
+    <!-- Sin JavaScript (o donde no se puede compartir) descarga la imagen del QR. -->
+    <a class="compartir" href="/qr/qr-hito.png" download="qr-hito.png" data-texto={textoCompartir} data-titulo={sitio.nombre}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 15V3" />
+        <path d="M7.5 7.5 12 3l4.5 4.5" />
+        <path d="M8 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-2" />
+      </svg>
+      Compartir QR
+    </a>
+  </body>
+</html>
+
+<script>
+  // Botón "Compartir QR": abre el menú de compartir del celular con la imagen del QR.
+  // La imagen se trae apenas carga la página: Safari (iPhone) solo deja compartir justo después
+  // del toque, y si en ese momento hubiera que ir a buscarla, lo bloquea sin avisar.
+  const boton = document.querySelector<HTMLAnchorElement>('.compartir');
+  let archivo: File | undefined;
+
+  if (boton && 'share' in navigator) {
+    fetch(boton.href)
+      .then((r) => (r.ok ? r.blob() : Promise.reject()))
+      .then((blob) => {
+        const f = new File([blob], 'qr-hito.png', { type: 'image/png' });
+        if (navigator.canShare?.({ files: [f] })) archivo = f;
+      })
+      .catch(() => {});
+
+    boton.addEventListener('click', (e) => {
+      if (!archivo) return; // todavía no cargó o no se puede: queda la descarga
+      e.preventDefault();
+      navigator
+        .share({ files: [archivo], title: boton.dataset.titulo, text: boton.dataset.texto })
+        .catch((err: unknown) => {
+          // Cancelar el menú no es un error; cualquier otra falla, descarga la imagen.
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          const a = document.createElement('a');
+          a.href = boton.href;
+          a.download = 'qr-hito.png';
+          a.click();
+        });
+    });
+  }
+</script>
+
+<style>
+  body {
+    background: var(--hueso);
+  }
+
+  .enlaces {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px 110px;
+  }
+
+  .portada {
+    position: relative;
+    width: calc(100% + 40px);
+    max-width: 760px;
+    margin-bottom: 62px;
+  }
+
+  .portada__foto {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    object-position: center 30%;
+    border-radius: 0 0 28px 28px;
+  }
+
+  .portada__foto--vacia {
+    background: var(--arena);
+  }
+
+  .avatar {
+    position: absolute;
+    left: 50%;
+    bottom: -46px;
+    transform: translateX(-50%);
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    background: var(--blanco);
+    border: 6px solid var(--hueso);
+    box-shadow: 0 6px 18px rgba(47, 40, 34, 0.18);
+    display: grid;
+    place-items: center;
+  }
+
+  .avatar :global(img) {
+    width: 48px;
+    height: auto;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .subtitulo {
+    margin: 6px 0 0;
+    color: var(--tierra);
+    font-size: 0.9rem;
+  }
+
+  .botones {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  /* Ícono a la izquierda y texto centrado: la tercera columna vacía equilibra la primera. */
+  .boton {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 12px;
+    min-height: 58px;
+    padding: 10px 22px;
+    text-align: center;
+    border-radius: 999px;
+    background: var(--carbon);
+    color: var(--blanco);
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgba(47, 40, 34, 0.15);
+    transition: background 0.15s, transform 0.15s;
+  }
+
+  .boton__icono {
+    display: grid;
+    place-items: center;
+  }
+
+  .boton:hover {
+    background: var(--tierra);
+  }
+
+  .boton:active {
+    transform: scale(0.98);
+  }
+
+  .firma {
+    margin: 36px 0 0;
+    font-size: 0.78rem;
+    color: var(--tierra);
+  }
+
+  .compartir {
+    position: fixed;
+    right: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 52px;
+    padding: 0 20px;
+    border-radius: 999px;
+    background: var(--piedra-oscura);
+    color: var(--blanco);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 8px 22px rgba(47, 40, 34, 0.28);
+    transition: background 0.15s;
+  }
+
+  .compartir:hover {
+    background: var(--tierra);
+  }
+
+  @media (min-width: 800px) {
+    .enlaces {
+      padding-top: 40px;
+    }
+    .portada {
+      width: 100%;
+      margin-bottom: 72px;
+    }
+    .portada__foto {
+      height: 260px;
+      border-radius: 28px;
+    }
+    .avatar {
+      width: 112px;
+      height: 112px;
+      bottom: -56px;
+    }
+    .avatar :global(img) {
+      width: 58px;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+  }
+</style>
