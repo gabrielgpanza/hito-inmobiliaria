@@ -14,6 +14,9 @@ medidas: 12,50 X 20,25
 servicios:
   - Luz
 escritura: Preventa de Loteo, próximo a escriturar.
+descripcion: PREVENTA DE TERRENOS, DESDE USD 10.000, DIFERENTES OPCIONES EN
+  MEDIDAS, SE REALIZA BOLETO DE COMPRAVENTA Y EL LOTEO SE REALIZARÁ UNA VEZ
+  REUNIDO LOS GASTOS PARA GESTIONAR DICHO TRÁMITE EN LA HECTAREA. CONSULTANOS.
 fotos:
   - /src/assets/uploads/WhatsApp Image 2026-10-11 at 8.17.46 PM.jpeg
   - /src/assets/uploads/WhatsApp Image 2026-10-11 at 7.29.14 PM.jpeg
