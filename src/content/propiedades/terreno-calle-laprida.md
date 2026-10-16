@@ -15,8 +15,7 @@ escritura: LISTO PARA ESCRITURAR.
 descripcion: EXCELENTE UBICACIÓN EN CALLE LAPRIDA ENTRE SAN LORENZO Y 9 DE
   JULIO, CONSULTANOS.
 fotos:
-  - /src/assets/uploads/WhatsApp Image 2026-10-10 at 12.57.31.jpeg
-  - /src/assets/uploads/LAP.jpg
+  - /src/assets/uploads/WhatsApp Image 2026-10-16 at 13.09.06-1.jpg
 mapa: https://maps.app.goo.gl/wwaWXM8ginMYT8636
 fecha: 2026-10-14
 ---
