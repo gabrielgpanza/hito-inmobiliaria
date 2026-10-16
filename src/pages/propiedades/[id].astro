@@ -206,10 +206,7 @@ const datosEstructurados = datosPropiedad(p, Astro.site!, imagenesSeo);
           </div>
           <h1>{d.titulo}</h1>
           {lugar && <p class="ficha__lugar">{lugar}</p>}
-          <p class="ficha__precio">
-            {precio}
-            {d.financiacion && !vendida && <span> · {d.financiacion}</span>}
-          </p>
+          <p class="ficha__precio">{precio}</p>
         </header>
 
         {
@@ -605,11 +602,6 @@ const datosEstructurados = datosPropiedad(p, Astro.site!, imagenesSeo);
   .ficha__precio {
     font-size: 2rem;
     font-weight: 700;
-  }
-  .ficha__precio span {
-    font-size: 1.05rem;
-    font-weight: 500;
-    color: var(--tierra);
   }
   .aviso-vendida {
     display: flex;
