@@ -1,0 +1,10 @@
+{
+  "titulo": "Hito Desarrollos Inmobiliarios",
+  "subtitulo": "Huinca Renancó, Córdoba",
+  "botones": [
+    { "texto": "Venta Propiedades", "link": "/propiedades/" },
+    { "texto": "Construcción", "link": "/#construccion" },
+    { "texto": "Obra Social y Seguros", "link": "https://www.instagram.com/organizacionpyg/" }
+  ],
+  "firma": "Organización PG – Panza Girardi"
+}

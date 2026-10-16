@@ -9,5 +9,6 @@ const site = process.env.SITE_URL || 'https://hitoinmobiliaria.com';
 export default defineConfig({
   site,
   trailingSlash: 'always',
-  integrations: [sitemap()],
+  // /enlaces/ es la página del QR: no va al mapa del sitio.
+  integrations: [sitemap({ filter: (pagina) => !pagina.includes('/enlaces/') })],
 });
