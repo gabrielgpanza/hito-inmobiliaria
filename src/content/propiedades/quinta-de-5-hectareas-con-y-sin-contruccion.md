@@ -1,7 +1,7 @@
 ---
 titulo: QUINTA DE 5 HECTÁREAS - CON Y SIN CONTRUCCIÓN
 estado: disponible
-destacada: true
+destacada: false
 operacion: Venta
 tipo: Lote
 localidad: HUINCA RENANCÓ
