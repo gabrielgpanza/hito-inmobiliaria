@@ -38,6 +38,26 @@ export const sitio: Sitio = Object.fromEntries(
 sitio.whatsapp = sitio.whatsapp.replace(/\D/g, '') || porDefecto.whatsapp;
 sitio.instagram = sitio.instagram.replace(/^@/, '');
 
+// Fotos fijas de las tarjetas de "Localidades" en la portada (panel: "Localidades · fotos").
+// Se comparan los nombres sin mayúsculas ni tildes, así "huinca renanco" encuentra "Huinca Renancó".
+const normalizar = (s: string) =>
+  s.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
+
+const encuadres = { izquierda: 'left', centro: 'center', derecha: 'right' } as const;
+
+const fotosLocalidades = new Map<string, { foto: string; encuadre: string }>();
+const listaLocalidades = (datos as Record<string, unknown>).localidades;
+for (const item of Array.isArray(listaLocalidades) ? listaLocalidades : []) {
+  const { nombre, foto, encuadre } = (item ?? {}) as Record<string, unknown>;
+  if (typeof nombre !== 'string' || !nombre.trim() || typeof foto !== 'string' || !foto.trim()) continue;
+  fotosLocalidades.set(normalizar(nombre), {
+    foto,
+    encuadre: encuadres[encuadre as keyof typeof encuadres] ?? 'center',
+  });
+}
+
+export const fotoDeLocalidad = (nombre: string) => fotosLocalidades.get(normalizar(nombre));
+
 /** "Huinca Renancó, Córdoba" → { localidad: "Huinca Renancó", provincia: "Córdoba" } */
 export const ubicacionSitio = (() => {
   const [localidad, ...resto] = sitio.ciudad.split(',').map((s) => s.trim());

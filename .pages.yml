@@ -188,6 +188,34 @@ content:
       - name: construccion_imagen
         label: Construcción · foto
         type: image
+      - name: localidades
+        label: Localidades · fotos de la portada
+        type: object
+        list: true
+        description: "Foto fija para la tarjeta de cada localidad. Si una localidad no tiene, se usa la primera foto de sus propiedades."
+        fields:
+          - name: nombre
+            label: Localidad
+            type: string
+            required: true
+            description: "Escribila igual que en las propiedades (ej: Huinca Renancó)."
+          - name: foto
+            label: Foto
+            type: image
+            required: true
+          - name: encuadre
+            label: Qué parte de la foto mostrar
+            type: select
+            default: centro
+            description: "La tarjeta es cuadrada: elegí qué lado de la foto queda a la vista."
+            options:
+              values:
+                - value: izquierda
+                  label: Izquierda
+                - value: centro
+                  label: Centro
+                - value: derecha
+                  label: Derecha
 
   - name: enlaces
     label: Página del QR
