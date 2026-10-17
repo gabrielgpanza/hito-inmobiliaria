@@ -9,7 +9,7 @@ import logoBlanco from '../assets/brand/logo-blanco.png';
 import { buscarImagen } from '../lib/imagenes';
 import { linkWhatsApp, parrafos, semilla, todasLasPropiedades } from '../lib/propiedades';
 import { datosInmobiliaria, datosSitioWeb } from '../lib/seo';
-import { sitio } from '../lib/sitio';
+import { fotoDeLocalidad, sitio } from '../lib/sitio';
 
 const propiedades = await todasLasPropiedades();
 const activas = propiedades.filter((p) => p.data.estado !== 'vendido');
@@ -21,10 +21,14 @@ const localidades = [...new Set(propiedades.map((p) => p.data.localidad))]
   .map((nombre) => {
     const deAca = propiedades.filter((p) => p.data.localidad === nombre);
     const conFoto = deAca.find((p) => buscarImagen(p.data.fotos[0]));
+    // Si en el panel hay una foto fija para esta localidad, gana sobre la de las propiedades.
+    const fija = fotoDeLocalidad(nombre);
+    const fotoFija = buscarImagen(fija?.foto);
     return {
       nombre,
       cantidad: deAca.filter((p) => p.data.estado !== 'vendido').length,
-      foto: conFoto ? buscarImagen(conFoto.data.fotos[0]) : undefined,
+      foto: fotoFija ?? (conFoto ? buscarImagen(conFoto.data.fotos[0]) : undefined),
+      encuadre: fotoFija ? fija!.encuadre : 'center',
     };
   })
   .sort((a, b) => b.cantidad - a.cantidad);
@@ -175,7 +179,13 @@ const datosEstructurados = [datosSitioWeb(Astro.site!), await datosInmobiliaria(
             {localidades.map((l) => (
               <a class="localidad" href={`/propiedades/?localidad=${encodeURIComponent(l.nombre)}`}>
                 {l.foto ? (
-                  <Image src={l.foto} alt="" widths={[400, 700]} sizes="(max-width: 640px) 100vw, 300px" />
+                  <Image
+                    src={l.foto}
+                    alt=""
+                    widths={[400, 700]}
+                    sizes="(max-width: 640px) 100vw, 300px"
+                    style={`object-position: ${l.encuadre}`}
+                  />
                 ) : (
                   <Paisaje variante={semilla(l.nombre)} />
                 )}

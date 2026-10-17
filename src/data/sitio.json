@@ -16,5 +16,12 @@
   "construccion_encabezado": "De la vidriera a tu terreno, contactanos.",
   "construccion_titulo": "Del terreno a la casa, con el mismo equipo.",
   "construccion_texto": "Gestionamos tu terreno y la construcción de tu casa. Somos representantes oficiales de Constructora Domus.",
-  "construccion_imagen": "/src/assets/uploads/Foto sección Construcción (Domus)@1x.png"
+  "construccion_imagen": "/src/assets/uploads/Foto sección Construcción (Domus)@1x.png",
+  "localidades": [
+    {
+      "nombre": "Huinca Renancó",
+      "foto": "/src/assets/uploads/estacion-huinca-renanco.png",
+      "encuadre": "derecha"
+    }
+  ]
 }
