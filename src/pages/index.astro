@@ -15,7 +15,7 @@ const propiedades = await todasLasPropiedades();
 const activas = propiedades.filter((p) => p.data.estado !== 'vendido');
 
 const elegidas = activas.filter((p) => p.data.destacada);
-const destacadas = (elegidas.length ? elegidas : activas).slice(0, 6);
+const destacadas = (elegidas.length ? elegidas : activas).slice(0, 12);
 
 const localidades = [...new Set(propiedades.map((p) => p.data.localidad))]
   .map((nombre) => {
