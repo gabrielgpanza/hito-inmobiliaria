@@ -9,8 +9,8 @@ ubicacion: OSCAR CIVALERO
 precio: 30000
 moneda: USD
 financiacion: CONSULTAR EN HITO.
-superficie_total: 438
-medidas: 10 x 44
+superficie_total: 430
+medidas: 10 x 43
 escritura: LISTO PARA ESCRITURAR.
 descripcion: TERRENO CERCA DEL BOULEVARD OLIVERO, NUEVA CALLE CIVALERO (EX
   CHUBUT). IMPUESTOS Y NUEVO ADOQUINADO ABONADOS, CONSULTANOS.
