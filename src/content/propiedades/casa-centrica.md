@@ -26,5 +26,6 @@ fotos:
   - /src/assets/uploads/WhatsApp Image 2026-10-28 at 19.53.22.jpeg
   - /src/assets/uploads/WhatsApp Image 2026-10-28 at 19.53.21 (3).jpeg
   - /src/assets/uploads/WhatsApp Image 2026-10-28 at 19.53.22 (2).jpeg
+mapa: https://maps.app.goo.gl/5Exu3C6L9dyBtQzE8?g_st=aw
 fecha: 2026-10-29
 ---
