@@ -17,5 +17,20 @@ escritura: CONSULTAR.
 descripcion: CASA CON AMPLIO GALPÓN A METROS DE LA ROTONDA PARA COMENZAR TU
   PROYECTO, CUENTA CON LOCAL COMERCIAL AL FRENTE, DEPARTAMENTO EN PLANTA
   SUPERIOR CON COCINA, COMEDOR, 3 HABITACIONES Y BAÑO. CONSULTANOS.
+fotos:
+  - /src/assets/uploads/1.jpg
+  - /src/assets/uploads/2.jpeg
+  - /src/assets/uploads/3.jpeg
+  - /src/assets/uploads/4.jpeg
+  - /src/assets/uploads/5.jpeg
+  - /src/assets/uploads/6.jpeg
+  - /src/assets/uploads/7.jpeg
+  - /src/assets/uploads/8.jpeg
+  - /src/assets/uploads/9.jpeg
+  - /src/assets/uploads/10.jpeg
+  - /src/assets/uploads/11.jpeg
+  - /src/assets/uploads/12.jpeg
+  - /src/assets/uploads/13.jpg
+mapa: https://maps.app.goo.gl/8RjrWbrEgRJoLPZbA
 fecha: 2026-11-12
 ---
